@@ -16,7 +16,7 @@ temiz round = FULL CLEAN.
 | L3 | e2e Playwright (15 sayfa × 3 senaryo × 2 tema) | — | 0/3 | |
 | L4 | a11y axe-core (WCAG 2.2 AA) | Round 3 | 1/3 (spec ship — live run founder) | |
 | L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | — | 0/3 | |
-| L6 | security (semgrep, bandit, npm audit, OWASP) | — | 0/3 | |
+| L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5 | 1/3 | Q10-L6-001 HIGH fix (quota-check actual gate); L6-002/003 backlog |
 | L7 | visual regression (Playwright screenshot diff) | — | 0/3 | |
 | L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4 | 1/3 | 3 bug fix (Try it/Configure×2 → TR) |
 | **L9** | **graceful degradation (API yok / provider down / network slow)** | **Round 1** | **1/3** | **2 bulgu fix** |
@@ -31,6 +31,7 @@ temiz round = FULL CLEAN.
 | 2 | L1 | 0 (15 yeni regression-koruma test) | — | ✅ ship |
 | 3 | L4 | TBD (spec ship, run pending) | — | ✅ spec |
 | 4 | L8 | Q10-L8-001..003 | bu round atomic | ✅ ship |
+| 5 | L6 | Q10-L6-001 (HIGH) + L6-002/003 backlog | bu round atomic | ✅ ship |
 
 ---
 
