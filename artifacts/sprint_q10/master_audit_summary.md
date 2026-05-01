@@ -15,9 +15,9 @@ temiz round = FULL CLEAN.
 | L2 | integration test (cascade chain, RAG ingest+query, marketplace install→sandbox) | Round 6 | 1/3 | 7 yeni integration test PASS, 0 bug |
 | L3 | e2e Playwright (15 sayfa × 3 senaryo × 2 tema) | Round 7 | 1/3 (spec ship 30 senaryo) | |
 | L4 | a11y axe-core (WCAG 2.2 AA) | Round 3 | 1/3 (spec ship — live run founder) | |
-| L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | — | 0/3 | |
+| L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | Round 8 | 1/3 (config ship, run pending) | |
 | L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5 | 1/3 | Q10-L6-001 HIGH fix (quota-check actual gate); L6-002/003 backlog |
-| L7 | visual regression (Playwright screenshot diff) | — | 0/3 | |
+| L7 | visual regression (Playwright screenshot diff) | Round 9 | 1/3 (spec ship, baseline founder) | |
 | L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4 | 1/3 | 3 bug fix (Try it/Configure×2 → TR) |
 | **L9** | **graceful degradation (API yok / provider down / network slow)** | **Round 1** | **1/3** | **2 bulgu fix** |
 
@@ -34,6 +34,8 @@ temiz round = FULL CLEAN.
 | 5 | L6 | Q10-L6-001 (HIGH) + L6-002/003 backlog | bu round atomic | ✅ ship |
 | 6 | L2 | 0 (7 yeni integration test) | bu round atomic | ✅ ship |
 | 7 | L3 | TBD (spec ship, run pending) | bu round atomic | ✅ spec |
+| 8 | L5 | TBD (config ship, run pending) | bu round atomic | ✅ config |
+| 9 | L7 | TBD (spec ship, baseline pending) | bu round atomic | ✅ spec |
 
 ---
 
