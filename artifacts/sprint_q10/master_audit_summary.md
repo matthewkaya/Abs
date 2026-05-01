@@ -18,7 +18,7 @@ temiz round = FULL CLEAN.
 | L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | — | 0/3 | |
 | L6 | security (semgrep, bandit, npm audit, OWASP) | — | 0/3 | |
 | L7 | visual regression (Playwright screenshot diff) | — | 0/3 | |
-| L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | — | 0/3 | |
+| L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4 | 1/3 | 3 bug fix (Try it/Configure×2 → TR) |
 | **L9** | **graceful degradation (API yok / provider down / network slow)** | **Round 1** | **1/3** | **2 bulgu fix** |
 
 ---
@@ -30,6 +30,7 @@ temiz round = FULL CLEAN.
 | 1 | L9 | Q10-L9-001, Q10-L9-002 | 26bff11, 38f9d74 | ✅ ship |
 | 2 | L1 | 0 (15 yeni regression-koruma test) | — | ✅ ship |
 | 3 | L4 | TBD (spec ship, run pending) | — | ✅ spec |
+| 4 | L8 | Q10-L8-001..003 | bu round atomic | ✅ ship |
 
 ---
 
