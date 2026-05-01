@@ -14,7 +14,7 @@ temiz round = FULL CLEAN.
 | L1 | unit test coverage gap (pytest --cov, vitest --coverage) | Round 2 | 1/3 | 15 yeni test PASS, 0 bug |
 | L2 | integration test (cascade chain, RAG ingest+query, marketplace install→sandbox) | — | 0/3 | |
 | L3 | e2e Playwright (15 sayfa × 3 senaryo × 2 tema) | — | 0/3 | |
-| L4 | a11y axe-core (WCAG 2.2 AA) | — | 0/3 | Round 3 hedef |
+| L4 | a11y axe-core (WCAG 2.2 AA) | Round 3 | 1/3 (spec ship — live run founder) | |
 | L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | — | 0/3 | |
 | L6 | security (semgrep, bandit, npm audit, OWASP) | — | 0/3 | |
 | L7 | visual regression (Playwright screenshot diff) | — | 0/3 | |
@@ -29,6 +29,7 @@ temiz round = FULL CLEAN.
 |-------|-------|------------|------------|--------|
 | 1 | L9 | Q10-L9-001, Q10-L9-002 | 26bff11, 38f9d74 | ✅ ship |
 | 2 | L1 | 0 (15 yeni regression-koruma test) | — | ✅ ship |
+| 3 | L4 | TBD (spec ship, run pending) | — | ✅ spec |
 
 ---
 
