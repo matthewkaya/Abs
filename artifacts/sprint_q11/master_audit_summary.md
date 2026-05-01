@@ -21,11 +21,11 @@
 | L9 | Q10 ⭐ | 0/3 | Network throttle + DB locked |
 | L10 | Q11 NEW | 1/3 | Round 1: 200 parallel quota gate split 100/100, lock atomic |
 | L11 | Q11 NEW | 1/3 | Round 3: FF+WebKit smoke 10/10 + Q11-L11-001 Demo iframe placeholder fix |
-| L12 | Q11 NEW | 0/3 | Responsive 4 breakpoint |
+| L12 | Q11 NEW | 1/3 | Round 4: Q11-L12-001 header link <24px touch target fix; 16/16 PASS 4×4 viewport |
 | L13 | Q11 NEW | 1/3 | Round 2: Q11-L13-001/002 chat input contract drift fix; 11 fuzz PASS |
-| L14 | Q11 NEW | 0/3 | Data integrity (Alembic up/down) |
-| L15 | Q11 NEW | 0/3 | API contract (Schemathesis) |
-| L16 | Q11 NEW | 0/3 | Error message UX (TR consistency) |
+| L14 | Q11 NEW | 1/3 | Round 5: Q11-L14-001 (HIGH missing Alembic 0008 migration) fix + revoke persistence + replay attack tests |
+| L15 | Q11 NEW | 1/3 | Round 6: 10 OpenAPI contract pin (revoke/revoked + chat content bounds + hooks + RAG) |
+| L16 | Q11 NEW | 1/3 | Round 7: Q11-L16-001 pipeline error tile CTA parity (chat'le aynı pattern) |
 
 ---
 
@@ -36,11 +36,17 @@
 | 1 | L10 | 0 (200 parallel split 100/100, lock atomic) | 2c333d1 | ✅ ship |
 | 2 | L13 | Q11-L13-001 (HIGH content max 16384→8000) + L13-002 (MED empty) | 271fcc3 | ✅ ship |
 | 3 | L11 | Q11-L11-001 (HIGH Demo iframe X-Frame-Options) | 8ed5e58 | ✅ ship |
+| 4 | L12 | Q11-L12-001 site header link 22px → 44px touch target | 684567d | ✅ ship |
+| 5 | L14 | Q11-L14-001 (HIGH missing Alembic 0008 blacklist migration) | 71bd030 | ✅ ship |
+| 6 | L15 | 0 (10 OpenAPI contract pin tests) | 586a860 | ✅ ship |
+| 7 | L16 | Q11-L16-001 pipeline error tile CTA parity | 7af3e49 | ✅ ship |
 
 ---
 
 ## Loop status
 
-Round 3 closed. L10/L11/L13 each at 1/3. Sonraki: Round 4 = L12
-responsive viewport (375/768/1024/1920) — Q10-L8 i18n button'lar
-mobile'da overflow olmuyor mu?
+Round 7 closed. **7/7 yeni Q11 layer (L10-L16) hepsi 1/3 — Q10
+fix'leri stres test fazı tamamlandı.** Toplam 5 prod-kalite bug
+shipped (Q11-L11/L12/L13×2/L14/L16). Backend Q8+Q10+Q11 = 73 PASS
+(önceki 44 + 16 yeni Q11). Sonraki: Round 8 = Q10 layer derin
+sweep (mutation + concurrent + screen reader vb.).
