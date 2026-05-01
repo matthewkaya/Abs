@@ -7,6 +7,30 @@
 
 ---
 
+## Q8.5 Finalize Round (2026-05-01 founder verify)
+
+**Tetikleyici:** Founder Playwright headed walkthrough — Q7 finalize gap pattern tekrar tespit edildi (chat.py + claude_code_hooks.py + mcp_tokens.py source dosyaları gerçek ama Docker image rebuild yapılmamış, container'da yok).
+
+**Gaps closed in Q8.5 finalize:**
+| Bug | Action |
+|-----|--------|
+| Image rebuild gap | `docker compose up -d --build backend` — Q8 source dosyaları container'a girdi, /v1/chat/* + /v1/mcp/tokens + /v1/hooks/* live |
+| Workflow-builder landing footer (admin layout escape) | `app/admin/workflow-builder/page.tsx` `<Footer />` import + render kaldırıldı, heading TR'ye çevrildi |
+| US1 backend gap | `app/api/admin/users.py` skeleton + `main.py` register, GET /v1/admin/users 200 (was 404) |
+| TR4 status text | Plain "Hazır" → emerald pill badge + animated dot (recording=red, error=amber, ready=emerald) |
+
+**Verify:**
+- 15/15 sayfa Playwright headed PASS, screenshot proof: `q85_verify_*.png`
+- Console error: 0/15 sayfa (önce 2/15: chat ve users 404'leri)
+- Backend live: /v1/chat/sessions 200, /v1/admin/users 200, /v1/mcp/tokens 405 (route var), /v1/hooks/session-start 401 (auth gate beklenen)
+- Q8.5 commit: `cbe3279 fix(q8.5): finalize round — workflow layout + admin/users endpoint + transcription status badge`
+
+**Defer'ler (Q9 / post-launch):** MT8 (meetings filter), TR2/TR3/TR6 (mic UX + waveform), MP4 (plugin permissions chip), QT3/QT4 (date range + threshold alert) — UX_BUGS_20260501.md'de tag'li.
+
+**Skor:** 9/9 CRITICAL bulgu kapalı. 14/15 sayfa fully-closed. Müşteri demo açılabilir.
+
+---
+
 ## 0. Genel sonuç
 
 | Phase | Hedef | Durum |
