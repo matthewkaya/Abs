@@ -12,7 +12,7 @@ temiz round = FULL CLEAN.
 | # | Layer | Round'lar | Clean counter | Açıklama |
 |---|-------|-----------|---------------|----------|
 | L1 | unit test coverage gap (pytest --cov, vitest --coverage) | Round 2, 11, 19 | **3/3 ⭐ FULL CLEAN** | Round 2: 15 test · Round 11: 37 PASS · Round 19: 44/44 PASS post Round 13-18 |
-| L2 | integration test (cascade chain, RAG ingest+query, marketplace install→sandbox) | Round 6, 18 | 2/3 | Round 6: 7 contract test · Round 18: +3 enrichment (RAG roundtrip + cross-tenant + marketplace lifecycle); 10/10 PASS |
+| L2 | integration test (cascade chain, RAG ingest+query, marketplace install→sandbox) | Round 6, 18, 24 | **3/3 ⭐ FULL CLEAN** | Round 6: 7 contract · Round 18: +3 enrichment · Round 24: re-run 10/10 PASS |
 | L3 | e2e Playwright (15 sayfa × 3 senaryo × 2 tema) | Round 7, 17, 23 | **3/3 ⭐ FULL CLEAN** | Round 7: spec · Round 17: live + Q10-L3-001 harness · Round 23: re-run 30/30 PASS |
 | L4 | a11y axe-core (WCAG 2.2 AA) | Round 3, 12 | 1/3 (live blocked: dev mode HMR thrash, prod build gerek) | |
 | L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | Round 8, 16 | 2/3 | Round 8: config · Round 16: live run prod :3458 (4 sayfa ≥90 4 metrik) + Q10-L5-002/003/004 fix |
@@ -50,6 +50,7 @@ temiz round = FULL CLEAN.
 | 21 | L8 re-scan | 0 EN hit, Round 14-20 yüzeyleri TR uyumlu — **L8 FULL CLEAN ⭐ ikinci 3/3 layer** | docs only | ✅ ship |
 | 22 | L7 re-run | Q10-L7-002 baseline refresh post Round 16 + diff 10/10 PASS — **L7 FULL CLEAN ⭐ üçüncü 3/3 layer** | 3f66675 | ✅ ship |
 | 23 | L3 re-run | 30/30 PASS theme matrix dark+light regression-safe — **L3 FULL CLEAN ⭐ dördüncü 3/3 layer** | docs only | ✅ ship |
+| 24 | L2 re-run | 10/10 PASS L2 integration regression-safe — **L2 FULL CLEAN ⭐ beşinci 3/3 layer** | docs only | ✅ ship |
 
 ---
 
@@ -110,7 +111,7 @@ Hedef: backend %85+, frontend %75+ coverage; en az 3 yeni unit test.
 
 ---
 
-**Loop status:** Round 23 closed. **L1 + L3 + L7 + L8 = 3/3 FULL
-CLEAN ⭐⭐⭐⭐** (4/9 layers, %44). L2+L5+L6 all 2/3 — 3 layer
-one-clean-round. L9 → 1/3. L4 stuck at 1/3. Sonraki: Round 24 = L2
-re-scan (2/3 → 3/3, beşinci FULL CLEAN).
+**Loop status:** Round 24 closed. **L1 + L2 + L3 + L7 + L8 = 3/3
+FULL CLEAN ⭐⭐⭐⭐⭐** (5/9 layers, %55 — yarıyı aştık). L5+L6 both
+2/3 — 2 layer one-clean-round. L9 → 1/3. L4 stuck at 1/3. Sonraki:
+Round 25 = L5 Lighthouse re-run (2/3 → 3/3, altıncı FULL CLEAN).
