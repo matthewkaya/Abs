@@ -16,7 +16,7 @@ temiz round = FULL CLEAN.
 | L3 | e2e Playwright (15 sayfa × 3 senaryo × 2 tema) | Round 7 | 1/3 (spec ship 30 senaryo) | |
 | L4 | a11y axe-core (WCAG 2.2 AA) | Round 3, 12 | 1/3 (live blocked: dev mode HMR thrash, prod build gerek) | |
 | L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | Round 8 | 1/3 (config ship, run pending) | |
-| L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5 | 1/3 | Q10-L6-001 HIGH fix (quota-check actual gate); L6-002/003 backlog |
+| L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5, 14 | 2/3 | Round 5: Q10-L6-001 HIGH fix · Round 14: Q10-L6-002 revoke list (4 test) + L6-003 vitest 2→3 (audit 7→2 moderate) |
 | L7 | visual regression (Playwright screenshot diff) | Round 9 | 1/3 (spec ship, baseline founder) | |
 | L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4, 13 | 2/3 | Round 4: 3 fix · Round 13: 5 fix (Test Now×4 + Cascade rank + Claude Quota) |
 | **L9** | **graceful degradation (API yok / provider down / network slow)** | **Round 1, 10** | **0/3 (reset)** | **Round 1: 2 fix · Round 10: 2 fix (L9-003 HARMLESS, L9-004 dev retry)** |
@@ -40,6 +40,7 @@ temiz round = FULL CLEAN.
 | 11 | L1 re-scan | 0 (37/37 PASS regression-safe) | bu round atomic | ✅ regression |
 | 12 | L4 axe live | Q10-L4-002 dev-retry/wait patch — dev mode blocked | bu round atomic | ⚠ dev-blocked |
 | 13 | L8 re-scan | Q10-L8-004 (Test Now ×4) + L8-005 (Cascade rank) + L8-006 (Claude Quota) | d6f2583 | ✅ ship |
+| 14 | L6 re-scan + backlog | Q10-L6-002 fix (revoke endpoint + 4 test) + Q10-L6-003 5/7 npm fix (vitest 2→3) | 1212862 | ✅ ship |
 
 ---
 
@@ -100,6 +101,6 @@ Hedef: backend %85+, frontend %75+ coverage; en az 3 yeni unit test.
 
 ---
 
-**Loop status:** Round 13 closed (L8 2/3). Sonraki: Round 14 = L6
-re-scan + Q10-L6-002 (mcp_tokens revoke list endpoint) + Q10-L6-003
-(npm audit moderate dep upgrade) backlog.
+**Loop status:** Round 14 closed (L6 2/3, L8 2/3). Sonraki: Round 15
+= L7 visual regression baseline run (`q10-visual.spec.ts` --update-snapshots
+ilk run, sonra diff bul).
