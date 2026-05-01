@@ -19,7 +19,7 @@ temiz round = FULL CLEAN.
 | L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5 | 1/3 | Q10-L6-001 HIGH fix (quota-check actual gate); L6-002/003 backlog |
 | L7 | visual regression (Playwright screenshot diff) | Round 9 | 1/3 (spec ship, baseline founder) | |
 | L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4 | 1/3 | 3 bug fix (Try it/Configure×2 → TR) |
-| **L9** | **graceful degradation (API yok / provider down / network slow)** | **Round 1** | **1/3** | **2 bulgu fix** |
+| **L9** | **graceful degradation (API yok / provider down / network slow)** | **Round 1, 10** | **0/3 (reset)** | **Round 1: 2 fix · Round 10: 2 fix (L9-003 HARMLESS, L9-004 dev retry)** |
 
 ---
 
@@ -36,6 +36,7 @@ temiz round = FULL CLEAN.
 | 7 | L3 | TBD (spec ship, run pending) | bu round atomic | ✅ spec |
 | 8 | L5 | TBD (config ship, run pending) | bu round atomic | ✅ config |
 | 9 | L7 | TBD (spec ship, baseline pending) | bu round atomic | ✅ spec |
+| 10 | L9 (live) | Q10-L9-003 HARMLESS allowlist + Q10-L9-004 dev retry helper | bu round atomic | ✅ live |
 
 ---
 
