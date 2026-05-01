@@ -19,7 +19,7 @@ temiz round = FULL CLEAN.
 | L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5, 14 | 2/3 | Round 5: Q10-L6-001 HIGH fix · Round 14: Q10-L6-002 revoke list (4 test) + L6-003 vitest 2→3 (audit 7→2 moderate) |
 | L7 | visual regression (Playwright screenshot diff) | Round 9, 15 | 2/3 | Round 9: spec ship · Round 15: prod-build baseline 10 PNG + diff 10/10 PASS + Q10-L7-001 fix (HIGH prod build break) |
 | L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4, 13 | 2/3 | Round 4: 3 fix · Round 13: 5 fix (Test Now×4 + Cascade rank + Claude Quota) |
-| **L9** | **graceful degradation (API yok / provider down / network slow)** | **Round 1, 10** | **0/3 (reset)** | **Round 1: 2 fix · Round 10: 2 fix (L9-003 HARMLESS, L9-004 dev retry)** |
+| L9 | graceful degradation (API yok / provider down / network slow) | Round 1, 10, 20 | 1/3 | Round 1+10 fix · Round 20: 17/17 PASS regression-safe |
 
 ---
 
@@ -46,6 +46,7 @@ temiz round = FULL CLEAN.
 | 17 | L3 theme matrix live | Q10-L3-001 standalone harness fix (/tmp izolasyon) + 30/30 dark+light PASS | docs only | ✅ ship |
 | 18 | L2 enrich | +3 test (RAG ingest+query roundtrip + cross-tenant zero-leak + marketplace install→list→uninstall lifecycle); 10/10 PASS | 15fce5a | ✅ ship |
 | 19 | L1 re-scan | 44/44 PASS Q8+Q10 (Round 13-18 dokunmuş yüzeyler regression-safe) — **L1 FULL CLEAN ⭐ ilk 3/3 layer** | docs only | ✅ ship |
+| 20 | L9 re-scan | 17/17 PASS q10-no-api-degradation (Round 1+10 fix'leri regression-safe) | docs only | ✅ ship |
 
 ---
 
@@ -106,7 +107,8 @@ Hedef: backend %85+, frontend %75+ coverage; en az 3 yeni unit test.
 
 ---
 
-**Loop status:** Round 19 closed. **L1 = 3/3 FULL CLEAN ⭐** (1/9
-layers complete). L2+L3+L5+L6+L7+L8 all 2/3 — bir round'a kalmış
-6 layer daha. Sonraki: Round 20 = L9 re-scan (sayaç 0/3,
-regression koruma kritik).
+**Loop status:** Round 20 closed. **L1 = 3/3 FULL CLEAN ⭐** (1/9
+layers complete). L2+L3+L5+L6+L7+L8 all 2/3 — 6 layer one-clean-round
+from FULL CLEAN. L9 → 1/3 (Round 1+10 regression-safe). L4 stuck at
+1/3 (prod axe build gerek). Sonraki: Round 21 = L8 re-scan (2/3 → 3/3
+hedef, ikinci FULL CLEAN).
