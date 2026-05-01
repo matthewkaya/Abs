@@ -43,6 +43,8 @@
 | 8 | L11 | 0 (Firefox+WebKit axe 30/30 PASS) | docs only | ✅ ship |
 | 9 | L11 | 0 (FF+WK theme matrix 60/60) — **L11 FULL CLEAN ⭐ ilk Q11 layer** | docs only | ✅ ship |
 | 10 | L14 | 0 (standalone cold start: /panel/meetings/[id] 200 + Link intact) | docs only | ✅ ship |
+| 11 | L4 (cross-engine) | 0 (15/15 PASS WebKit axe — Q10 fixes engine-portable) | docs only | ✅ ship |
+| 12 | L5 (throttled) | Q11-L5-001 (HIGH chat LCP 9.9s + tools LCP 8.6s under CPU 4× / slow 3G) — backlog | docs only | ⚠ backlog |
 
 ---
 
