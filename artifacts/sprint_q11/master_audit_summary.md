@@ -19,13 +19,13 @@
 | L7 | Q10 ⭐ | 0/3 | 15 sayfa × 4 viewport baseline |
 | L8 | Q10 ⭐ | 0/3 | Plural form + tense consistency |
 | L9 | Q10 ⭐ | 0/3 | Network throttle + DB locked |
-| L10 | Q11 NEW | 2/3 | Round 1: quota gate · Round 14: 100-parallel cascade race-safe |
+| L10 | Q11 NEW | **3/3 ⭐ FULL CLEAN** | Round 1: quota gate · Round 14: cascade race · Round 19: rolling-window + Q11-L10-002 SSE thinking heartbeat |
 | L11 | Q11 NEW | **3/3 ⭐ FULL CLEAN** | Round 3: smoke + fix · Round 8: cross-browser axe 30/30 · Round 9: theme matrix dark+light FF+WK 60/60 PASS |
-| L12 | Q11 NEW | 2/3 | Round 4: header touch fix · Round 16: FF+WK 32/32 PASS engine-portable |
-| L13 | Q11 NEW | 1/3 | Round 2: Q11-L13-001/002 chat input contract drift fix; 11 fuzz PASS |
+| L12 | Q11 NEW | **3/3 ⭐ FULL CLEAN** | Round 4: header fix · Round 16: FF+WK · Round 20: Q11-L12-002 tools sort header + 60/60 PASS |
+| L13 | Q11 NEW | **3/3 ⭐ FULL CLEAN** | Round 2: L13-001/002 fix · Round 15: L13-003 whitespace IndexError fix · Round 18: 16/16 PASS regression |
 | L14 | Q11 NEW | **3/3 ⭐ FULL CLEAN** | Round 5: missing migration fix · Round 10: cold start · Round 17: Alembic up/down/up roundtrip on 0008 |
-| L15 | Q11 NEW | 1/3 | Round 6: 10 OpenAPI contract pin (revoke/revoked + chat content bounds + hooks + RAG) |
-| L16 | Q11 NEW | 1/3 | Round 7: Q11-L16-001 pipeline error tile CTA parity (chat'le aynı pattern) |
+| L15 | Q11 NEW | **3/3 ⭐ FULL CLEAN** | Round 6: 10 contract pin · Round 21: Q11-L15-001 hooks 422→401 (info disclosure) fix · Round 23: regression guard |
+| L16 | Q11 NEW | **3/3 ⭐ FULL CLEAN** | Round 7: L16-001 pipeline CTA · Round 22: L16-002 setError TR prefix · Round 24: vitest source audit |
 
 ---
 
@@ -51,12 +51,44 @@
 | 16 | L12 | 0 (FF+WK responsive 32/32 PASS engine-portable) | docs only | ✅ ship |
 | 17 | L14 | 0 (Alembic 0008 up/down/up roundtrip) — **L14 FULL CLEAN ⭐** | f892ab5 | ✅ ship |
 | 18 | L13 re-run | 0 (16/16 PASS regression-safe) — **L13 FULL CLEAN ⭐** | docs only | ✅ ship |
+| 19 | L10 | Q11-L10-002 SSE thinking heartbeat + rolling-window persistence — **L10 FULL CLEAN ⭐** | 0d54bae | ✅ ship |
+| 20 | L12 | Q11-L12-002 tools sort header touch (16→24) + 60-senaryo expand — **L12 FULL CLEAN ⭐** | 7339b0a | ✅ ship |
+| 21 | L15 | Q11-L15-001 hooks 422→401 info disclosure fix + 7 drift test | 6c02ed4 | ✅ ship |
+| 22 | L16 | Q11-L16-002 setError TR prefix (meetings/[id] + quota) | a2a6aec | ✅ ship |
+| 23 | L15 | regression guard for L15-001 — **L15 FULL CLEAN ⭐** | 5a5be0c | ✅ ship |
+| 24 | L16 | vitest source audit (chat + pipeline + setError) — **L16 FULL CLEAN ⭐** | f5699ea | ✅ ship |
 
 ---
 
 ## Loop status
 
-Round 18 closed. **3/7 Q11 layer FULL CLEAN ⭐⭐⭐ (L11+L13+L14)**.
-L10/L12 at 2/3, L15/L16 at 1/3. Q11 prod bugs shipped: 7 (Q11-L11
-Demo iframe, L12 header touch, L13-001/002/003, L14-001 migration,
-L16-001 pipeline error CTA). Backend tests Q8+Q10+Q11 = 78 PASS.
+🎉 **Q11 SPRINT FULL CLEAN — 7/7 NEW LAYERS ⭐⭐⭐⭐⭐⭐⭐**
+
+L10 stress · L11 cross-browser · L12 responsive · L13 fuzz ·
+L14 data integrity · L15 API contract · L16 error UX
+
+**11 prod-quality bug shipped:**
+- Q11-L11-001 (HIGH): Demo iframe X-Frame-Options placeholder
+- Q11-L12-001: site header touch target 22→44px
+- Q11-L12-002: tools sort header touch 16→24px
+- Q11-L13-001 (HIGH): chat content max_length 16384→8000 contract drift
+- Q11-L13-002 (MED): chat empty content min_length=1
+- Q11-L13-003 (HIGH): whitespace-only content IndexError 500
+- Q11-L14-001 (HIGH prod-blocker): missing Alembic 0008 migration
+- Q11-L15-001 (MED): hooks 422-before-401 info disclosure
+- Q11-L16-001: pipeline error tile CTA parity
+- Q11-L16-002: setError TR prefix consistency
+- Q11-L8-001: empty-state phrasing parity
+- Q11-L10-002 (MED): SSE thinking heartbeat (proxy 30s timeout)
+
+**Backlog (Sprint 21+):**
+- Q11-L5-001: chat/tools LCP 8.6-9.9s on slow 3G (architectural,
+  React.lazy + Tremor dynamic import)
+
+**Test inventory final:**
+- Backend: 88 PASS (Q8 12 + Q10 32 + Q11 44)
+- Frontend cross-browser/viewport: 200+ PASS
+- Lighthouse desktop: 4 sayfa 4 metric ≥90 (parity Q10)
+- npm audit: 2 moderate (next/postcss bogus downgrade — ignored)
+
+**24 atomic commit branch `feat/sprint-q11-deep-sweep`**.
