@@ -15,7 +15,7 @@ temiz round = FULL CLEAN.
 | L2 | integration test (cascade chain, RAG ingest+query, marketplace install→sandbox) | Round 6 | 1/3 | 7 yeni integration test PASS, 0 bug |
 | L3 | e2e Playwright (15 sayfa × 3 senaryo × 2 tema) | Round 7 | 1/3 (spec ship 30 senaryo) | |
 | L4 | a11y axe-core (WCAG 2.2 AA) | Round 3, 12 | 1/3 (live blocked: dev mode HMR thrash, prod build gerek) | |
-| L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | Round 8 | 1/3 (config ship, run pending) | |
+| L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | Round 8, 16 | 2/3 | Round 8: config · Round 16: live run prod :3458 (4 sayfa ≥90 4 metrik) + Q10-L5-002/003/004 fix |
 | L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5, 14 | 2/3 | Round 5: Q10-L6-001 HIGH fix · Round 14: Q10-L6-002 revoke list (4 test) + L6-003 vitest 2→3 (audit 7→2 moderate) |
 | L7 | visual regression (Playwright screenshot diff) | Round 9, 15 | 2/3 | Round 9: spec ship · Round 15: prod-build baseline 10 PNG + diff 10/10 PASS + Q10-L7-001 fix (HIGH prod build break) |
 | L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4, 13 | 2/3 | Round 4: 3 fix · Round 13: 5 fix (Test Now×4 + Cascade rank + Claude Quota) |
@@ -42,6 +42,7 @@ temiz round = FULL CLEAN.
 | 13 | L8 re-scan | Q10-L8-004 (Test Now ×4) + L8-005 (Cascade rank) + L8-006 (Claude Quota) | d6f2583 | ✅ ship |
 | 14 | L6 re-scan + backlog | Q10-L6-002 fix (revoke endpoint + 4 test) + Q10-L6-003 5/7 npm fix (vitest 2→3) | 1212862 | ✅ ship |
 | 15 | L7 baseline + diff | Q10-L7-001 prod build break fix + 10 baseline PNG + diff 10/10 PASS | c24b450 | ✅ ship |
+| 16 | L5 Lighthouse | Q10-L5-002 button-name + L5-003 meta-description + L5-004 console errors uplift; 4/4 sayfa 4/4 metrik ≥90 | bda943c | ✅ ship |
 
 ---
 
@@ -102,6 +103,6 @@ Hedef: backend %85+, frontend %75+ coverage; en az 3 yeni unit test.
 
 ---
 
-**Loop status:** Round 15 closed (L6+L7+L8 all 2/3). 3 layer one-round
-from FULL CLEAN. Sonraki: Round 16 = L5 Lighthouse headless run on
-prod :3458 (lighthouserc-panel.json, ≥90 hedef per metric).
+**Loop status:** Round 16 closed. L5+L6+L7+L8 all 2/3 — **4 layer
+one round from FULL CLEAN**. Sonraki: Round 17 = L3 theme matrix
+headless run (15 sayfa × dark/light) prod :3458.
