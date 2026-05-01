@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash",
+      "Edit",
+      "Write",
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm ~/.claude/.freeze-dir.txt)",
+      "Bash(*sk_live_*)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard HEAD~*)"
+    ]
+  }
+}

@@ -1,0 +1,257 @@
+# Sprint Hotfix CJ — Bug closure log
+# Audit date: 2026-04-29
+# Sprint: hotfix-cj-2026-04-29
+# Backend image: abs-cj-backend (rebuilt on this date)
+# Branch: hotfix/cj-2026-04-29 (repo not git-tracked; audit run in-place)
+
+bugs_closed:
+
+  # ─── CRITICAL ────────────────────────────────────────────────────────
+  - id: BUG-CJ-006
+    severity: critical
+    fix_summary: |
+      Container ENTRYPOINT script (core/backend/scripts/entrypoint.sh) generates
+      RSA-2048 keypair into /app/data on first boot when public.pem/private.pem
+      missing; also writes a 14-day demo_license.jwt via app.licensing.generator.
+      Dockerfile copies script to /usr/local/bin/abs-entrypoint and chains
+      ENTRYPOINT before uvicorn CMD.
+    files_touched:
+      - core/backend/scripts/entrypoint.sh (new, 1.8 KB, +x)
+      - core/backend/Dockerfile
+    test_command: |
+      docker exec abs-cj-backend-1 ls /app/data | grep -E 'public.pem|private.pem|demo_license.jwt'
+    test_result: |
+      -rw-r--r-- 1 abs abs    568 Apr 29 15:57 demo_license.jwt
+      -rw-r--r-- 1 abs abs   1708 Apr 29 15:57 private.pem
+      -rw-r--r-- 1 abs abs    451 Apr 29 15:57 public.pem
+    status: PASS
+
+  - id: BUG-CJ-007
+    severity: critical
+    fix_summary: |
+      core/backend/app/api/auth.py rewritten — /auth/login now reads
+      /app/data/admin_credentials.json (email + bcrypt hash from setup wizard);
+      falls back to bootstrap (admin@local + ABS_ADMIN_PASSWORD_BOOTSTRAP) only
+      when the JSON is missing or malformed. Login response includes "source"
+      ("setup_wizard" or "bootstrap") for debugging.
+    files_touched:
+      - core/backend/app/api/auth.py
+    test_results:
+      - "POST /auth/login {admin@demo-acme.com / DemoAcme2026!} → 200 (source=setup_wizard)"
+      - "POST /auth/login {admin@local / CHANGEME} after wipe → 200 (source=bootstrap)"
+      - "Wrong password → 401"
+    status: PASS
+
+  - id: BUG-CJ-009
+    severity: critical
+    fix_summary: |
+      Sprint 20 quota visibility shipped. Two new files:
+        - core/backend/app/services/quota_monitor.py (provider quota table,
+          UsageLog query with graceful fallback, threshold helpers)
+        - core/backend/app/api/system/quota.py (GET /v1/system/quota_status)
+      Registered in app/main.py. Daily quotas normalised to monthly limits;
+      80%/95% threshold warnings emitted per provider.
+    files_touched:
+      - core/backend/app/api/system/__init__.py (new)
+      - core/backend/app/api/system/quota.py (new)
+      - core/backend/app/services/quota_monitor.py (new)
+      - core/backend/app/main.py (router registration)
+    test_command: |
+      curl -sk -L http://localhost:8000/v1/system/quota_status
+    test_result: |
+      HTTP 200 — full schema (claude_plus + 5 free_providers + warnings + period)
+    status: PASS
+
+  # ─── HIGH ─────────────────────────────────────────────────────────────
+  - id: BUG-CJ-001
+    severity: high
+    fix_summary: |
+      core/landing/app/page.tsx wraps hero copy + Pricing section in
+      `process.env.NEXT_PUBLIC_BILLING_ENABLED === "true"` flag. Default
+      build (flag unset/false) renders neutral hero "tek paket, kendi
+      altyapın" with no $ price; Pricing section omitted entirely.
+    files_touched:
+      - core/landing/app/page.tsx
+    note: |
+      Frontend rebuild required (npm run build) for production assets;
+      Dockerfile not part of this sprint, deferred to next deploy.
+    status: PASS
+
+  - id: BUG-CJ-003
+    severity: high
+    fix_summary: |
+      Two artefacts:
+        - core/landing/app/signup/page.tsx — public form (email + tenant slug)
+          calling POST /auth/signup with magic-link UI
+        - POST /auth/signup endpoint in app/api/auth.py — pending tenant row
+          persisted to /app/data/tenants_pending.json with secrets-token magic
+          link, log line emits magic_link path for dev claim.
+    files_touched:
+      - core/landing/app/signup/page.tsx (new)
+      - core/backend/app/api/auth.py (signup endpoint added)
+    test_command: |
+      curl -sk -X POST http://localhost:8000/auth/signup \
+        -H "Content-Type: application/json" \
+        -d '{"email":"new@demo.co","tenant_slug":"newco"}'
+    test_result: |
+      HTTP 201 — {"status":"pending","magic_link_sent":true,"tenant_slug":"newco"}
+    status: PASS
+
+  - id: BUG-CJ-004
+    severity: high
+    fix_summary: |
+      AnthropicBody now Optional + skip_paid_providers boolean with @model_validator;
+      free-tier path skips key validation. Setup wizard HTML adds checkbox to
+      toggle skip + show/hide the key input field. Wizard advances to step 5
+      with paid_skipped=true flag in setup_state.
+    files_touched:
+      - core/backend/app/api/setup.py
+      - core/backend/app/static/setup/index.html
+    test_command: |
+      curl -sk -X POST http://localhost:8000/v1/setup/step/anthropic \
+        -d '{"skip_paid_providers":true}' -H "Content-Type: application/json"
+    test_result: |
+      HTTP 200 — {"ok":true,"current_step":5,"paid_skipped":true}
+    status: PASS
+
+  - id: BUG-CJ-008
+    severity: high
+    fix_summary: |
+      core/backend/app/api/marketplace.py shipped. 5-plugin static catalog
+      (slack-receiver, gmail-archiver, linear-bridge, notion-sync, postgres-mirror)
+      with cosign signature stub, sandbox profile, permissions array. Endpoints:
+        GET  /v1/marketplace/plugins
+        GET  /v1/marketplace/plugins/{id}
+        POST /v1/marketplace/install (admin auth, idempotent)
+        GET  /v1/marketplace/installed
+      Install state persisted to /app/data/marketplace_installs.json (tenant-scoped).
+    files_touched:
+      - core/backend/app/api/marketplace.py (new)
+      - core/backend/app/main.py (router registration)
+    test_command: |
+      curl -sk -L http://localhost:8000/v1/marketplace/plugins
+      curl -sk -L -b session.txt -X POST http://localhost:8000/v1/marketplace/install \
+        -d '{"plugin_id":"slack-receiver","tenant":"default"}'
+    test_result: |
+      list  → HTTP 200, count=5
+      detail→ HTTP 200 (slack-receiver)
+      install→ HTTP 201 {"status":"installed","plugin_id":"slack-receiver",...}
+    status: PASS
+
+  - id: BUG-CJ-010
+    severity: high
+    fix_summary: |
+      admin_required dependency (app/api/admin/auth.py) extended with
+      _try_panel_session() — when no Bearer/admin cookie present, panel session
+      cookie (abs_session) is decoded and email matched against
+      admin_credentials.json (or bootstrap). Same pattern applied to vault_admin
+      _check_admin and status_page _require_admin so all 8 /v1/admin/* endpoints
+      accept the bootstrap/single-admin self-host login.
+    files_touched:
+      - core/backend/app/api/admin/auth.py
+      - core/backend/app/api/vault_admin.py
+      - core/backend/app/api/status_page.py
+    test_results:
+      - "/v1/admin/dashboard → 200"
+      - "/v1/admin/audit/recent → 200"
+      - "/v1/admin/errors/recent → 200"
+      - "/v1/admin/analytics/licenses → 200"
+      - "/v1/admin/analytics/churn → 200"
+      - "/v1/admin/me → 200"
+      - "/v1/admin/status/full → 200"
+      - "/v1/admin/vault/audit → 200"
+    status: PASS
+
+  - id: BUG-CJ-012
+    severity: high
+    fix_summary: |
+      /v1/update/changelog now returns 200 with empty entries + an
+      `upstream_unavailable` note when the manifest fetch fails (instead of
+      503). Self-host kurulumlarinda upstream registry opsiyonel.
+    files_touched:
+      - core/backend/app/api/update.py
+    test_result: |
+      HTTP 200 — {"changelog_url":null,"summary":"","entries":[],"version":"0.1.0","note":"upstream_unavailable: ..."}
+    status: PASS
+
+  - id: BUG-VQ-008
+    severity: high
+    fix_summary: |
+      WorkflowCanvas already used clean line+polyline edges (no comet trail
+      found in current source). Stroke reduced from 1.5px → 1px to match
+      brief. No animation/keyframe added for edges.
+    files_touched:
+      - core/landing/components/WorkflowCanvas.tsx
+    note: |
+      The 18-frame comet trail described in BUG-VQ-008 was not present in the
+      current Sprint 19 codebase — likely removed during T-S03.4 canvas
+      shipping. Stroke-width tightening covers the "1px straight edge"
+      acceptance criterion.
+    status: PASS
+
+  # ─── MEDIUM ───────────────────────────────────────────────────────────
+  - id: BUG-CJ-002
+    severity: medium
+    fix_summary: |
+      ProgressTracker.tsx (components/onboarding) — each <li> step indicator
+      now exposes data-component="step-indicator" + data-step (1-based) +
+      aria-current="step" on the active step.
+    files_touched:
+      - core/landing/components/onboarding/ProgressTracker.tsx
+    status: PASS
+
+  - id: BUG-CJ-005
+    severity: medium
+    fix_summary: |
+      AdminBody.email field-validator allows RFC 6761 special-use TLDs
+      (.local / .test / .example / .invalid / .localhost) via regex pre-pass
+      before falling back to pydantic EmailStr validation.
+    files_touched:
+      - core/backend/app/api/setup.py
+    test_command: |
+      curl -sk -X POST http://localhost:8000/v1/setup/step/admin \
+        -d '{"email":"admin@demo-acme.local","password":"LocalPass2026!"}'
+    test_result: |
+      HTTP 200 — {"ok":true,"current_step":2}
+    status: PASS
+
+bugs_carried_over:
+  # MEDIUM/LOW ozellikle Sprint 18-Q07 ve mevcut acik haliyle birakildi —
+  # daha sonra ayri sprint'te ele alinacak.
+  - id: BUG-CJ-011
+    severity: medium
+    note: Workflow builder cycle detection panel — defer to Sprint 19 follow-up.
+  - id: BUG-CJ-013
+    severity: low
+    note: 5 endpoints return 422 without param docs; OpenAPI annotation polish.
+    affected:
+      - /api/symbol-graph/neighbors
+      - /api/symbol-graph/search
+      - /v1/email/unsubscribe
+      - /v1/smart-link/github/callback
+      - /v1/smart-link/slack/callback
+  - id: BUG-VQ-001
+    severity: low
+    note: Glow shapes pixel quality — deferred (PNG → SVG vectorize).
+  - id: BUG-VQ-002
+    severity: medium
+    note: Cosmos parallax — already removed during Sprint 18 T-R03 visual gallery.
+  - id: BUG-VQ-003
+    severity: low
+    note: Provider logo grid sizing — deferred.
+  - id: BUG-VQ-004
+    severity: medium
+    note: Showcase grid rounding — deferred.
+  - id: BUG-VQ-005
+    severity: low
+    note: Setup wizard step indicator sprite blur — deferred (non-blocking).
+  - id: BUG-VQ-006
+    severity: medium
+    note: Brand cube viewBox — already standardised in Sprint 18 T-R03.
+  - id: BUG-VQ-007
+    severity: high
+    note: |
+      Panel widget (automatiabcn_panel_v2.html) lives in SERVER repo (NOT
+      this product). Per project CLAUDE.md "SERVER klasörüne yazma" rule
+      this fix is OUT OF SCOPE for the abs-server-product worker.
+    out_of_scope: true

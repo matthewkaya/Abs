@@ -1,0 +1,4 @@
+upload1=201 time=16.493868s
+upload2=201 time=16.493910s
+upload3=201 time=16.493709s
+detail/5=200

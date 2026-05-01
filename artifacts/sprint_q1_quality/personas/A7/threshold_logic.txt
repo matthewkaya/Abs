@@ -1,0 +1,3 @@
+limit_now=100
+90%_warning=['claude_plus_warning_80']
+96%_critical=['claude_plus_critical_95']

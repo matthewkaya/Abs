@@ -1,0 +1,3 @@
+=== Phase 5 mint smoke ===
+token_len=671
+token_prefix=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhYnMtc2VsZi1...
