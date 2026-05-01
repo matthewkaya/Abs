@@ -17,7 +17,7 @@ temiz round = FULL CLEAN.
 | L4 | a11y axe-core (WCAG 2.2 AA) | Round 3, 12 | 1/3 (live blocked: dev mode HMR thrash, prod build gerek) | |
 | L5 | perf Lighthouse (≥90 4 metrik per panel sayfa) | Round 8, 16 | 2/3 | Round 8: config · Round 16: live run prod :3458 (4 sayfa ≥90 4 metrik) + Q10-L5-002/003/004 fix |
 | L6 | security (semgrep, bandit, npm audit, OWASP) | Round 5, 14 | 2/3 | Round 5: Q10-L6-001 HIGH fix · Round 14: Q10-L6-002 revoke list (4 test) + L6-003 vitest 2→3 (audit 7→2 moderate) |
-| L7 | visual regression (Playwright screenshot diff) | Round 9, 15 | 2/3 | Round 9: spec ship · Round 15: prod-build baseline 10 PNG + diff 10/10 PASS + Q10-L7-001 fix (HIGH prod build break) |
+| L7 | visual regression (Playwright screenshot diff) | Round 9, 15, 22 | **3/3 ⭐ FULL CLEAN** | Round 9: spec · Round 15: baseline + Q10-L7-001 fix · Round 22: Q10-L7-002 refresh + diff 10/10 PASS |
 | L8 | i18n (TR/EN/ES kapsam, hardcoded string scan) | Round 4, 13, 21 | **3/3 ⭐ FULL CLEAN** | Round 4: 3 fix · Round 13: 5 fix · Round 21: 0 EN hit (Round 14-20 yüzeyleri TR-uyumlu) |
 | L9 | graceful degradation (API yok / provider down / network slow) | Round 1, 10, 20 | 1/3 | Round 1+10 fix · Round 20: 17/17 PASS regression-safe |
 
@@ -48,6 +48,7 @@ temiz round = FULL CLEAN.
 | 19 | L1 re-scan | 44/44 PASS Q8+Q10 (Round 13-18 dokunmuş yüzeyler regression-safe) — **L1 FULL CLEAN ⭐ ilk 3/3 layer** | docs only | ✅ ship |
 | 20 | L9 re-scan | 17/17 PASS q10-no-api-degradation (Round 1+10 fix'leri regression-safe) | docs only | ✅ ship |
 | 21 | L8 re-scan | 0 EN hit, Round 14-20 yüzeyleri TR uyumlu — **L8 FULL CLEAN ⭐ ikinci 3/3 layer** | docs only | ✅ ship |
+| 22 | L7 re-run | Q10-L7-002 baseline refresh post Round 16 + diff 10/10 PASS — **L7 FULL CLEAN ⭐ üçüncü 3/3 layer** | 3f66675 | ✅ ship |
 
 ---
 
@@ -108,7 +109,7 @@ Hedef: backend %85+, frontend %75+ coverage; en az 3 yeni unit test.
 
 ---
 
-**Loop status:** Round 21 closed. **L1 + L8 = 3/3 FULL CLEAN ⭐⭐**
-(2/9 layers complete). L2+L3+L5+L6+L7 all 2/3 — 5 layer one-clean-round
-from FULL CLEAN. L9 → 1/3. L4 stuck at 1/3 (prod axe build gerek).
-Sonraki: Round 22 = L7 visual baseline re-run (2/3 → 3/3, üçüncü FULL CLEAN).
+**Loop status:** Round 22 closed. **L1 + L7 + L8 = 3/3 FULL CLEAN
+⭐⭐⭐** (3/9 layers complete, %33). L2+L3+L5+L6 all 2/3 — 4 layer
+one-clean-round. L9 → 1/3. L4 stuck at 1/3. Sonraki: Round 23 = L3
+theme matrix re-run (2/3 → 3/3, dördüncü FULL CLEAN).
