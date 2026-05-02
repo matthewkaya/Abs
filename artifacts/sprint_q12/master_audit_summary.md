@@ -29,7 +29,7 @@
 | **L17** | **Q12 NEW** | **3/3 ⭐** | bundle break-even validator **FULL CLEAN** (R1 + R6 + R8 9 unit + CI gate) |
 | **L18** | **Q12 NEW** | **3/3 ⭐** | cold-cache **FULL CLEAN** (R3 + R6 + R9 CDP throttle 12/12 PASS) |
 | **L19** | **Q12 NEW** | **3/3 ⭐** | backwards compat **FULL CLEAN** (R4 + R6 + R7 11/11 PASS) |
-| **L20** | **Q12 NEW** | **2/3** | chaos engineering (R5 + R6 rerun, 4 PASS + 1 test.fail()) |
+| **L20** | **Q12 NEW** | **3/3 ⭐** | chaos engineering **FULL CLEAN** (R5 + R6 + R10 redirect:"error" fix → 5/5 PASS) |
 | **L21** | **Q12 NEW** | 0/3 | production deploy drill |
 
 ---
@@ -45,15 +45,16 @@
 | 6 | L17+L18+L19+L20 | Consolidation rerun — 18 Playwright + 9 pytest + bundle validator unchanged; 4 layer 1/3→2/3 | 38bd9c4 | ✅ ship |
 | 7 | L19 | Sweep 3 — TestClient bootstrap creds + cascade endpoint refit → **11/11 PASS L19 FULL CLEAN ⭐** | a7f2257 | ✅ ship |
 | 8 | L17 | Sweep 3 — 9 node:test unit + CI gate (REVERT verdict block) → **L17 FULL CLEAN ⭐** | 8786962 | ✅ ship |
-| 9 | L18 | Sweep 3 — CDP slow 3G + CPU 4× throttle 12/12 PASS + Q12-L18-002 (LOW) Lighthouse vs CDP gap → **L18 FULL CLEAN ⭐** | _pending atomic_ | 🚧 |
+| 9 | L18 | Sweep 3 — CDP slow 3G + CPU 4× throttle 12/12 PASS + Q12-L18-002 (LOW) Lighthouse vs CDP gap → **L18 FULL CLEAN ⭐** | 7b2e50b | ✅ ship |
+| 10 | L20 | Sweep 3 — chat client `redirect:"error"` production fix → 5/5 chaos PASS → **L20 FULL CLEAN ⭐** + Q12-L20-002 (LOW) standalone build issue | _pending atomic_ | 🚧 |
 
 ---
 
 ## Loop status
 
-🚧 **Q12 IN PROGRESS** — 9 round shipped. **L17 + L18 + L19 FULL CLEAN ⭐⭐⭐ (3/5 Q12 yeni layer).** L20 2/3, L21 founder-gated.
+🚧 **Q12 IN PROGRESS** — 10 round shipped. **L17 + L18 + L19 + L20 FULL CLEAN ⭐⭐⭐⭐ (4/5 Q12 yeni layer).** Sadece L21 founder-gated.
 Round 2 (L21) **founder approval bekliyor** (destructive volume wipe; `scripts/chaos/q12_l20_isolated.sh` pattern ile isolated namespace alternatif önerildi).
-Sıradaki: L20 sweep 3 (chat redirect-loop guard production fix) veya inherited Q10/Q11 layer rotation.
+Sıradaki: L21 founder onayı OR inherited Q10/Q11 16-layer 3rd-sweep rotation (mutation, visual refresh, deep fuzz).
 
 **Beklenen:** L17/L20/L21'den 5–15 yeni gerçek bulgu.
 
