@@ -31,6 +31,11 @@
 | **L19** | **Q12 NEW** | **3/3 ⭐** | backwards compat **FULL CLEAN** (R4 + R6 + R7 11/11 PASS) |
 | **L20** | **Q12 NEW** | **3/3 ⭐** | chaos engineering **FULL CLEAN** (R5 + R6 + R10 redirect:"error" fix → 5/5 PASS) |
 | **L21** | **Q12 NEW** | **1/3** | fresh-deploy safe drill — full alembic chain + head↔base reversibility + 6-step wizard E2E (3/3 PASS) |
+| **L22** | **Q12 NEW S2** | 0/3 | race condition deep — pending Round 15 |
+| **L23** | **Q12 NEW S2** | **1/3** | observability gap — RequestIDMiddleware + emit_event + auth.py audit trail (9/9 PASS) |
+| **L24** | **Q12 NEW S2** | **1/3** | secret/sensitive leakage — Q12-L24-001 (HIGH magic_token log leak) + Q12-L24-002 (MED Stripe str(exc) leak) shipped (5/5 PASS) |
+| **L25** | **Q12 NEW S2** | 0/3 | boundary payload — pending Round 17 |
+| **L26** | **Q12 NEW S2** | 0/3 | long-running session — pending Round 16 |
 
 ---
 
@@ -48,7 +53,9 @@
 | 9 | L18 | Sweep 3 — CDP slow 3G + CPU 4× throttle 12/12 PASS + Q12-L18-002 (LOW) Lighthouse vs CDP gap → **L18 FULL CLEAN ⭐** | 7b2e50b | ✅ ship |
 | 10 | L20 | Sweep 3 — chat client `redirect:"error"` production fix → 5/5 chaos PASS → **L20 FULL CLEAN ⭐** + Q12-L20-002 (LOW) standalone build issue | cbc8ba5 | ✅ ship |
 | 11 | L19 | Q12-L19-001 follow-up fix — setup_wizard 400→422 + marketplace _isolated_install_store re-seed setup_state → **1473/1473 PASS** (was 1463+8fail) | 9ad4736 | ✅ ship |
-| 12 | L21 | Application-layer fresh-deploy safe drill — alembic 0000-0008 chain + head↔base reversibility + 6-step wizard E2E **3/3 PASS** | _pending atomic_ | 🚧 |
+| 12 | L21 | Application-layer fresh-deploy safe drill — alembic 0000-0008 chain + head↔base reversibility + 6-step wizard E2E **3/3 PASS** | b71b615 | ✅ ship |
+| 13 | L23 | Q12-L23-001 (HIGH) — 138/147 (93.9%) raise sites silent; no request-id middleware. Fix: RequestIDMiddleware + emit_event + auth.py 5 paths + 9 tests. **1485 full suite PASS** | fb78241 | ✅ ship |
+| 14 | L24 | Q12-L24-001 (HIGH) — magic_token plaintext in signup log; Q12-L24-002 (MED) — Stripe str(exc) leak in checkout/billing_portal detail. Fix: token_hint redaction + str(exc)→user_message scrub + 5 tests. **1490 full suite PASS** | _pending atomic_ | 🚧 |
 
 ---
 
