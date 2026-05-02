@@ -27,7 +27,7 @@
 | L15 | Q11 ⭐ | 0/3 | API contract 3rd sweep |
 | L16 | Q11 ⭐ | 0/3 | error UX 3rd sweep |
 | **L17** | **Q12 NEW** | **1/3** | bundle break-even validator (Round 1 ✅ Q12-L17-001 policy gap) |
-| **L18** | **Q12 NEW** | 0/3 | cold-cache first-visit |
+| **L18** | **Q12 NEW** | **1/3** | cold-cache first-visit (Round 3 ✅ 13/13 PASS + Q12-L18-001 throttle gap MED) |
 | **L19** | **Q12 NEW** | 0/3 | backwards compatibility (9 historical HIGH bug regression) |
 | **L20** | **Q12 NEW** | 0/3 | chaos engineering |
 | **L21** | **Q12 NEW** | 0/3 | production deploy drill |
@@ -38,13 +38,16 @@
 
 | Round | Layer | Bulgu | Commit | Status |
 |-------|-------|-------|--------|--------|
-| 1 | L17 | Q12-L17-001 (MED policy gap) — bundle decision missing LCP-position guard | _pending atomic_ | 🚧 |
+| 1 | L17 | Q12-L17-001 (MED policy gap) — bundle decision missing LCP-position guard | bd540cf | ✅ ship |
+| 3 | L18 | Q12-L18-001 (MED) — cold-cache + warm-network = throttle fidelity gap; spec 13/13 PASS warm | _pending atomic_ | 🚧 |
 
 ---
 
 ## Loop status
 
-🚧 **Q12 IN PROGRESS** — Round 1 L17 ship aşamasında. Sıradaki: Round 2 = L21 fresh prod deploy drill.
+🚧 **Q12 IN PROGRESS** — Round 1 L17 + Round 3 L18 ship.
+Round 2 (L21) **founder approval bekliyor** (destructive volume wipe; isolated namespace alternatif önerildi).
+Sıradaki: Round 4 = L19 backwards compat regression.
 
 **Beklenen:** L17/L20/L21'den 5–15 yeni gerçek bulgu.
 
