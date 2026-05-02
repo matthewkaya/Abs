@@ -29,7 +29,7 @@
 | **L17** | **Q12 NEW** | **1/3** | bundle break-even validator (Round 1 ✅ Q12-L17-001 policy gap) |
 | **L18** | **Q12 NEW** | **1/3** | cold-cache first-visit (Round 3 ✅ 13/13 PASS + Q12-L18-001 throttle gap MED) |
 | **L19** | **Q12 NEW** | **1/3** | backwards compat — 9/11 guard PASS + Q12-L19-001 (HIGH) Sprint 21 close pytest scope gap |
-| **L20** | **Q12 NEW** | 0/3 | chaos engineering |
+| **L20** | **Q12 NEW** | **1/3** | chaos — 4 PASS + Q12-L20-001 (MED) chat redirect-loop guard via `test.fail()` |
 | **L21** | **Q12 NEW** | 0/3 | production deploy drill |
 
 ---
@@ -40,7 +40,8 @@
 |-------|-------|-------|--------|--------|
 | 1 | L17 | Q12-L17-001 (MED policy gap) — bundle decision missing LCP-position guard | bd540cf | ✅ ship |
 | 3 | L18 | Q12-L18-001 (MED) — cold-cache + warm-network = throttle fidelity gap; spec 13/13 PASS warm | bf31610 | ✅ ship |
-| 4 | L19 | Q12-L19-001 (HIGH) — Sprint 21 close pytest scope gap (8 fail saklı); 9/11 backwards-compat guard PASS | _pending atomic_ | 🚧 |
+| 4 | L19 | Q12-L19-001 (HIGH) — Sprint 21 close pytest scope gap (8 fail saklı); 9/11 backwards-compat guard PASS | abdd4a3 | ✅ ship |
+| 5 | L20 | Q12-L20-001 (MED) — chat client redirect-loop guard yok; 4/5 chaos PASS + 1 documented `test.fail()` | _pending atomic_ | 🚧 |
 
 ---
 

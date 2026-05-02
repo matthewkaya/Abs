@@ -51,12 +51,25 @@ run_round4() {
   cd "$REPO_ROOT"
 }
 
+run_round5() {
+  echo "==> Q12 Round 5 — L20 chaos engineering (application layer)"
+  curl -sk -c /tmp/q12_cookie.txt -X POST http://localhost:8000/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"admin@demo-acme.com","password":"DemoPass2026!"}' \
+    -o /dev/null -w "auth %{http_code}\n"
+  cd "$REPO_ROOT/core/landing"
+  PLAYWRIGHT_BASE_URL=http://localhost:3458 \
+    npx playwright test --project=chromium-desktop -g "q12-l20" --reporter=line
+  cd "$REPO_ROOT"
+}
+
 case "$phase" in
   round1)   run_round1 ;;
   round3)   run_round3 ;;
   round4)   run_round4 ;;
+  round5)   run_round5 ;;
   backend)  run_backend_smoke ;;
   frontend) run_frontend_smoke ;;
-  all)      run_round1; run_round3; run_round4; run_backend_smoke; run_frontend_smoke ;;
+  all)      run_round1; run_round3; run_round4; run_round5; run_backend_smoke; run_frontend_smoke ;;
   *)        echo "unknown phase: $phase"; exit 2 ;;
 esac
