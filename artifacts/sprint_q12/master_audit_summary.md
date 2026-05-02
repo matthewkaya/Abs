@@ -35,7 +35,7 @@
 | **L23** | **Q12 NEW S2** | **1/3** | observability gap — RequestIDMiddleware + emit_event + auth.py audit trail (9/9 PASS) |
 | **L24** | **Q12 NEW S2** | **1/3** | secret/sensitive leakage — Q12-L24-001 (HIGH magic_token log leak) + Q12-L24-002 (MED Stripe str(exc) leak) shipped (5/5 PASS) |
 | **L25** | **Q12 NEW S2** | 0/3 | boundary payload — pending Round 17 |
-| **L26** | **Q12 NEW S2** | 0/3 | long-running session — pending Round 16 |
+| **L26** | **Q12 NEW S2** | **1/3** | JWT lifecycle hardening — typed exceptions + /me audit + 9 tests (1503 full suite PASS) |
 
 ---
 
@@ -56,7 +56,8 @@
 | 12 | L21 | Application-layer fresh-deploy safe drill — alembic 0000-0008 chain + head↔base reversibility + 6-step wizard E2E **3/3 PASS** | b71b615 | ✅ ship |
 | 13 | L23 | Q12-L23-001 (HIGH) — 138/147 (93.9%) raise sites silent; no request-id middleware. Fix: RequestIDMiddleware + emit_event + auth.py 5 paths + 9 tests. **1485 full suite PASS** | fb78241 | ✅ ship |
 | 14 | L24 | Q12-L24-001 (HIGH) — magic_token plaintext in signup log; Q12-L24-002 (MED) — Stripe str(exc) leak in checkout/billing_portal detail. Fix: token_hint redaction + str(exc)→user_message scrub + 5 tests. **1490 full suite PASS** | bf2e852 | ✅ ship |
-| 15 | L22 | Q12-L22-001 (HIGH) — setup wizard 7 step endpoint TOCTOU; pre-fix [200,200] silent overwrite proven via git stash. Fix: fcntl.LOCK_EX `_state_lock` + 7 endpoints + 4 tests. **1494 full suite PASS** | _pending atomic_ | 🚧 |
+| 15 | L22 | Q12-L22-001 (HIGH) — setup wizard 7 step endpoint TOCTOU; pre-fix [200,200] silent overwrite proven via git stash. Fix: fcntl.LOCK_EX `_state_lock` + 7 endpoints + 4 tests. **1494 full suite PASS** | 68b6724 | ✅ ship |
+| 16 | L26 | Q12-L26-001 (LOW observability fragility) — Round 13 used `"süresi" in detail` i18n string check for audit reason; locale drift would silently misroute. Fix: typed `_SessionExpired`/`_SessionInvalid` exceptions + /me audit emission + 9 tests (5 parametrize past-exp + tampered + garbled + missing-cookie hygiene + OAuth refresh single-use). **1503 full suite PASS** | _pending atomic_ | 🚧 |
 
 ---
 
