@@ -34,7 +34,7 @@
 | **L22** | **Q12 NEW S4** | **3/3 ⭐** | race condition deep FULL CLEAN — sweep 1 (R15) setup wizard TOCTOU + sweep 2 (R23) vault rotate + sweep 3 (R26) OAuth atomic single-use + §6.1 family revoke (Q12-L22-005/006 HIGH replay) (10/10 PASS) |
 | **L23** | **Q12 NEW S3** | **4/3 ⭐ deep** | observability — sweep 1+2+3 = FULL CLEAN; sweep 4 (R20+R21) closes Founder-verified 31 silent raise sites with 46 emit_event across setup/admin/auth/smart_link/beta_admin (41/41 PASS) |
 | **L24** | **Q12 NEW S3** | **3/3 ⭐** | secret/sensitive leakage FULL CLEAN — sweep 1 (R14) + sweep 2 (R22) + sweep 3 (R25) me_consent + me_audit + secrets/rotate (Q12-L24-005/006 MED). 6 Q12 layers FULL CLEAN total. |
-| **L25** | **Q12 NEW S3** | **2/3** | boundary payload — sweep 1 (R17) marketplace InstallBody; sweep 2 (R24) workflow execute UNBOUNDED nodes/edges (Q12-L25-002) + chat completions UNBOUNDED messages (Q12-L25-003), both HIGH DoS (23/23 PASS) |
+| **L25** | **Q12 NEW S4** | **3/3 ⭐** | boundary payload FULL CLEAN — sweep 1 (R17) Pydantic Field caps + sweep 2 (R24) workflow/chat caps + sweep 3 (R27) HTTP-layer Content-Length cap (Q12-L25-004 HIGH DoS, Q12-L25-005 MED DoS) (9/9 PASS + 58 sibling regression PASS) |
 | **L26** | **Q12 NEW S2** | **1/3** | JWT lifecycle hardening — typed exceptions + /me audit + 9 tests (1503 full suite PASS) |
 
 ---
@@ -67,18 +67,19 @@
 | 23 | L22 sweep 2 | Q12-L22-002 (HIGH data corruption) Vault rotate has no concurrent guard → audit-vs-disk divergence; Q12-L22-003 (MED) RotationError str(exc) leak; Q12-L22-004 (LOW) audit silence. Fix: fcntl.LOCK_EX + RotationBusyError 409. **14/14 PASS** | ed8316f | ✅ ship |
 | 24 | L25 sweep 2 | Q12-L25-002 (HIGH DoS) workflow execute UNBOUNDED nodes/edges; Q12-L25-003 (HIGH DoS) chat completions UNBOUNDED messages list. Fix: model_validator caps + Field max_length=200. **23/23 PASS** (broke Q10-L1 contract, fixed in R25). | a44a8a0 | ✅ ship |
 | 25 | L24 sweep 3 → ⭐ | Q12-L24-005 (MED) me_consent + me_audit duplicate License-verify leak; Q12-L24-006 (MED) secrets/rotate sops stderr leak. Fix: generic responses + emit_event taxonomy. **L24 → 3/3 FULL CLEAN ⭐** (6 Q12 layers FULL CLEAN). Plus Q12-L25-003 R24 contract regression-fix (drop `min_length=1`). **53/53 PASS** | f415b76 | ✅ ship |
-| 26 | L22 sweep 3 → ⭐ | Q12-L22-005 (HIGH security — token replay) `exchange_code_for_tokens` non-atomic read-then-write on `used_at` → 2 concurrent → 2× tokens minted (OAuth 2.1 §4.1.3 violation, **proven pre-fix via git stash**); Q12-L22-006 (HIGH) same on `refresh_access_token` rotated_to_hash + missing §6.1 family revocation. Fix: atomic UPDATE-WHERE-IS-NULL claim + `_revoke_refresh_family` cycle-safe chain walk + 4 emit_event labels. **L22 → 3/3 FULL CLEAN ⭐** (7 Q12 layers FULL CLEAN). **10/10 new + 34/34 oauth+auth regression PASS** | (this round) | ✅ ship |
+| 26 | L22 sweep 3 → ⭐ | Q12-L22-005 (HIGH security — token replay) `exchange_code_for_tokens` non-atomic read-then-write on `used_at` → 2 concurrent → 2× tokens minted (OAuth 2.1 §4.1.3 violation, **proven pre-fix via git stash**); Q12-L22-006 (HIGH) same on `refresh_access_token` rotated_to_hash + missing §6.1 family revocation. Fix: atomic UPDATE-WHERE-IS-NULL claim + `_revoke_refresh_family` cycle-safe chain walk + 4 emit_event labels. **L22 → 3/3 FULL CLEAN ⭐** (7 Q12 layers FULL CLEAN). **10/10 new + 34/34 oauth+auth regression PASS** | b18a241 | ✅ ship |
+| 27 | L25 sweep 3 → ⭐ | Q12-L25-004 (HIGH DoS) admin endpoints (`/v1/marketplace/install`, workflow synth/execute, chat completions, etc.) had no HTTP-layer Content-Length cap — 50 MB payloads parsed fully into memory before Pydantic Field caps fired; Q12-L25-005 (MED DoS) RAG ingest 16 MB+ payloads possible. Fix: new `BodySizeLimitMiddleware` (per-path longest-prefix cap + 50 MB hardcap + 413 with `{limit_bytes, received_bytes}`); wired between DemoMode + RequestID middlewares so request_id stays present on 413. **L25 → 3/3 FULL CLEAN ⭐** (8 Q12 layers FULL CLEAN). **9/9 new + 58 sibling regression PASS**. Live smoke: 50 MB body → 413 cap=64 KB; 29-byte body → 401 (auth path). | (this round) | ✅ ship |
 
 ---
 
 ## Loop status
 
-🚧 **Q12 Session 4 IN PROGRESS** — 26 round shipped (R26 = first commit this session).
-**7 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L22, L23, L24)**.
-L25 at 2/3, L21 / L26 at 1/3.
-Session 4 cumulative so far: 2 new HIGH-severity OAuth replay bugs surfaced + fixed (Q12-L22-005/006), pre-fix proven via git stash.
+🚧 **Q12 Session 4 IN PROGRESS** — 27 round shipped (R26 + R27 this session).
+**8 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L22, L23, L24, L25)**.
+L21 / L26 at 1/3.
+Session 4 cumulative so far: 4 new bugs (2 HIGH OAuth replay Q12-L22-005/006 + Q12-L25-004 HIGH DoS body-size + Q12-L25-005 MED DoS), pre-fix gating proven.
 
-**Beklenen:** L21 destructive drill founder-gated; L25 sweep 3 (RAG ingest batch DoS + plugin install cap); L26 sweep 2 (30dk Playwright); inherited mutation testing (mutmut on app/cascade + app/api/auth).
+**Beklenen:** L21 destructive drill founder-gated; L26 sweep 2 (30dk Playwright + heap snapshot); inherited mutation testing (mutmut on app/cascade + app/api/auth).
 
 **Test inventory baseline (Sprint 21'den devralındı):**
 - Backend pytest: 89 PASS
