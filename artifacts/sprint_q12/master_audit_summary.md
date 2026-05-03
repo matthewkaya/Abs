@@ -35,7 +35,7 @@
 | **L23** | **Q12 NEW S3** | **4/3 ⭐ deep** | observability — sweep 1+2+3 = FULL CLEAN; sweep 4 (R20+R21) closes Founder-verified 31 silent raise sites with 46 emit_event across setup/admin/auth/smart_link/beta_admin (41/41 PASS) |
 | **L24** | **Q12 NEW S4** | **4/3 ⭐ deep** | secret/sensitive leakage FULL CLEAN + deep — sweeps 1–3 (R14/R22/R25) all fixed; sweep 4 (R29) closes verifier.py PyJWTError catch-all str(exc) (Q12-L24-007 LOW, last passive sibling). |
 | **L25** | **Q12 NEW S4** | **3/3 ⭐** | boundary payload FULL CLEAN — sweep 1 (R17) Pydantic Field caps + sweep 2 (R24) workflow/chat caps + sweep 3 (R27) HTTP-layer Content-Length cap (Q12-L25-004 HIGH DoS, Q12-L25-005 MED DoS) (9/9 PASS + 58 sibling regression PASS) |
-| **L26** | **Q12 NEW S2** | **1/3** | JWT lifecycle hardening — typed exceptions + /me audit + 9 tests (1503 full suite PASS) |
+| **L26** | **Q12 NEW S5** | **2/3** | JWT lifecycle hardening — sweep 1 (R16) typed exceptions + /me audit + 9 tests; sweep 2 (R30) Playwright 90s heap-drift smoke + 30min gated long + cookie persistence (3 tests, 0.00 MB drift over 90s) |
 
 ---
 
@@ -70,19 +70,19 @@
 | 26 | L22 sweep 3 → ⭐ | Q12-L22-005 (HIGH security — token replay) `exchange_code_for_tokens` non-atomic read-then-write on `used_at` → 2 concurrent → 2× tokens minted (OAuth 2.1 §4.1.3 violation, **proven pre-fix via git stash**); Q12-L22-006 (HIGH) same on `refresh_access_token` rotated_to_hash + missing §6.1 family revocation. Fix: atomic UPDATE-WHERE-IS-NULL claim + `_revoke_refresh_family` cycle-safe chain walk + 4 emit_event labels. **L22 → 3/3 FULL CLEAN ⭐** (7 Q12 layers FULL CLEAN). **10/10 new + 34/34 oauth+auth regression PASS** | b18a241 | ✅ ship |
 | 27 | L25 sweep 3 → ⭐ | Q12-L25-004 (HIGH DoS) admin endpoints (`/v1/marketplace/install`, workflow synth/execute, chat completions, etc.) had no HTTP-layer Content-Length cap — 50 MB payloads parsed fully into memory before Pydantic Field caps fired; Q12-L25-005 (MED DoS) RAG ingest 16 MB+ payloads possible. Fix: new `BodySizeLimitMiddleware` (per-path longest-prefix cap + 50 MB hardcap + 413 with `{limit_bytes, received_bytes}`); wired between DemoMode + RequestID middlewares so request_id stays present on 413. **L25 → 3/3 FULL CLEAN ⭐** (8 Q12 layers FULL CLEAN). **9/9 new + 58 sibling regression PASS**. Live smoke: 50 MB body → 413 cap=64 KB; 29-byte body → 401 (auth path). | 4458706 | ✅ ship |
 | 28 | L21 sweep 2 | Non-destructive expansion: alembic upgrade↔downgrade **10× idempotent** (set-equality of inspect().table_names() per cycle); license JWT **boundary edges** now-1s/now+1s/now+24h/now+100y; **tamper matrix** signature flip + payload byte mutation + missing-jti + garbled + rogue-RSA-key. Q12-L21-003 (LOW non-bug) verifier accepts 100-year exp — pinned for conscious future cap decision. **L21 → 2/3** (sweep 3 destructive founder-gated). **11/11 PASS**, no src touched. | 819a57d | ✅ ship |
-| 29 | L24 sweep 4 deep | Q12-L24-007 (LOW security info-leak) — `verifier.py:51` catch-all `except PyJWTError` branch leaked `f"License verification error: {exc}"` to clients (passive vuln; future PyJWT subclass additions would silently fall through). Earlier sweeps (R14/R18/R19/R22/R25) grep'd `app/api/**` and `app/me_*` only; verifier in `app/licensing/` was outside those globs. Fix: generic `license_verify_failed` detail + `license_verify_pyjwt_error error_class=%s` ops audit warning (taxonomy only). **L24 → 4/3 deep** (defense-in-depth beyond FULL CLEAN). **2/2 new + 43 sibling regression PASS**. | (this round) | ✅ ship |
+| 29 | L24 sweep 4 deep | Q12-L24-007 (LOW security info-leak) — `verifier.py:51` catch-all `except PyJWTError` branch leaked `f"License verification error: {exc}"` to clients (passive vuln; future PyJWT subclass additions would silently fall through). Earlier sweeps (R14/R18/R19/R22/R25) grep'd `app/api/**` and `app/me_*` only; verifier in `app/licensing/` was outside those globs. Fix: generic `license_verify_failed` detail + `license_verify_pyjwt_error error_class=%s` ops audit warning (taxonomy only). **L24 → 4/3 deep** (defense-in-depth beyond FULL CLEAN). **2/2 new + 43 sibling regression PASS**. | 84b4152 | ✅ ship |
+| 30 | L26 sweep 2 | Long-running session regression guard. Ship `q12-l26-long-running.spec.ts` (Playwright): 90s idle heap-drift smoke (drift < 25 MB, post-idle endpoint ≠ 5xx) + 30-min gated long (`LONG_RUNNING_PLAYWRIGHT=1`, 5 intermediate snapshots, drift < 50 MB) + cookie persistence across navigations. Smoke catches the same leak class at 1/20 the runtime. **L26 → 2/3**. **2 passed, 1 skipped (gated)** in 1.6 min. Heap drift over 90s = 0.00 MB; post_idle_status=401 (auth path, no 5xx). | (this round) | ✅ ship |
 
 ---
 
 ## Loop status
 
-✅ **Q12 Session 4 CLOSING CHECKPOINT** — 29 round shipped (R26+R27+R28+R29 this session, 5 atomic commits).
+🚧 **Q12 Session 5 IN PROGRESS** — 30 round shipped (R30 first commit this session).
 **8 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L22, L23, L24, L25)**.
-**L23 + L24 are 4/3 deep** (defense-in-depth beyond FULL CLEAN). L21 at 2/3, L26 at 1/3.
-Session 4 cumulative: 5 real bugs + 1 non-bug pin (Q12-L22-005/006 HIGH replay + Q12-L25-004 HIGH DoS + Q12-L25-005 MED DoS + Q12-L24-007 LOW PyJWT leak + Q12-L21-003 LOW exp-cap pin).
-**Backend pytest: 1611 PASS, 14 skipped** (Δ +32 from S3 1579, +84 from S2 1527).
+**L23 + L24 are 4/3 deep**. L21 + **L26** at 2/3.
+Session 5 cumulative so far: L26 sweep 2 Playwright (3 tests, 90s heap drift = 0.00 MB).
 
-**Defer (Session 5 gündemi):** L26 sweep 2 (30dk Playwright + heap snapshot); mutmut L1 (app/cascade + app/api/auth); L21 destructive sweep 3 (founder-gated).
+**Beklenen:** mutmut L1 (oauth/auth + cascade); L20 multi-failure chaos round 4; L19 S4-bug regression pin; L21 destructive drill spec (founder-gated).
 
 **Test inventory baseline (Sprint 21'den devralındı):**
 - Backend pytest: 89 PASS
