@@ -62,7 +62,7 @@ expect "claimed user admin/me 200" 200 "$ADMIN"
 
 # --- Phase 8: A10 lifecycle (uses the user we just claimed) ---
 echo "=== Phase 8 — A10 NL workflow lifecycle ==="
-RC=$(A10_LOGIN_EMAIL="$EMAIL" A10_LOGIN_PASSWORD="ReproQ32026!" \
+RC=$(A10_LOGIN_EMAIL="$EMAIL" A10_LOGIN_PASSWORD="${A10_LOGIN_PASSWORD:-ReproQ32026!}" \
     python3 artifacts/sprint_q3/phase8_a10_workflow/A10_lifecycle.py 2>&1 \
     | grep -E "^A10 PASS=" | grep -oE "FAIL=[0-9]+" | grep -oE "[0-9]+")
 expect "A10 FAIL count" 0 "${RC:-X}"
