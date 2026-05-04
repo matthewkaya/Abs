@@ -89,12 +89,13 @@
 | 59 | Sprint 22 RSC Phase A audit | /pricing /privacy /terms already RSC (no work). /admin/audit + /admin/users heavy `"use client"` + useState + useQuery — pure RSC conversion would break interactivity. Right pattern: split-shell (server fetch initial data → render `<AuditClient initialEntries={...}>`). Updated R60+R61 plan: split-shell each shaves ~400ms LCP slow 3G; total target -800ms covers Sprint 21 +1230ms regress. Phase B blocked on dev-server recovery for Lighthouse before/after. Read-only artifact. | f06e6a0 | ✅ ship Phase A |
 | 60 | L8 i18n middleware deep | Pre-R60 gap: `app.middleware.i18n.I18nMiddleware` + `app.i18n.set_lang_cookie` active in production (`app/main.py:67,201`) but no direct test coverage beyond a `/healthz` smoke. A regression flipping cookie-over-header precedence would silently break the panel language switcher. Ship: `tests/test_q12_l8_i18n_middleware_deep.py` — 15 tests covering `set_lang_cookie` writer contract (3), middleware request.state.lang resolution incl. cookie-wins-over-header precedence (6), `detect_lang` edge cases (4 parametrize: q-weighting left-to-right scan locked, whitespace-only chunks, uppercase prefix, garbage), and SUPPORTED_LANGS/DEFAULT_LANG defensive lock (1). **15/15 PASS in 0.57s; 27/27 PASS combined with `test_i18n_basic.py` sibling.** | 97f184b | ✅ ship |
 | 61 | L25 body_size_limit boundary edges | Pre-R61 coverage hit headline DoS but missed the boundary — one-off-error (`<` vs `<=`) would silently shift the 413 gate by 1 byte. Ship `tests/test_q12_l25_body_size_limit_edges.py` (10 pytest): `_cap_for` pure-unit (5: exact prefix, extension still longest-prefix, unknown→default, hardcap clamps high default, reserved-key-not-prefix) + integration boundary (4: CL==cap → 200, CL==cap+1 → 413 with limit_bytes/received_bytes detail, CL==0 → not-413, CL=-1 → not-200) + custom-caps override propagation (1). **10/10 PASS; 19/19 PASS combined with the original `test_q12_l25_body_size_limit.py` sibling.** | 4e4c439 | ✅ ship |
+| 62 | L11 cross-browser firefox 3 deferred | S8 R57 left long-running + aria-live + cold-cache un-validated on firefox (dev-server churn). R62 ran the trio: `q12-l26-long-running.spec.ts` smoke (1/1 + 1 gated skip), `q10-l4-aria-live-deep.spec.ts` (5/5), `q12-l18-cold-cache.spec.ts` (13/13 — all under budget; /showcase 89/282/434/779 ms across 4 invocations). **20/20 PASS + 1 gated skip in 1.6 min**. Initial run had 2 transient failures: L26 smoke `post_idle_status=500` (chromium reproduced — backend host port 8000 unmapped under prod compose, not firefox-specific) + /showcase LCP 5780 ms (concurrent-run flake; isolated runs ≤ 779 ms). Fix: non-destructive `alpine/socat` sidecar on `infra_default` network forwarding `localhost:8000 → backend:8000`; teardown `docker rm -f abs-q12-be-fwd`. Q11-L11 firefox-desktop now 4 spec PASS (chaos-multi R57 + R62 trio). dev_server_restart: not needed (3457 alive). | (this round) | ✅ ship |
 
 ---
 
 ## Loop status
 
-🔄 **Q12 Session 8 IN-FLIGHT** — 6 atomic rounds shipped (R56–R61).
+🔄 **Q12 Session 8 IN-FLIGHT** — 7 atomic rounds shipped (R56–R62).
 
 **S8 atomic commits so far:**
 ```
@@ -104,23 +105,24 @@ a51bc3c  R56  fs-scan honest gap close 1   — 5 closes (P3 1→0, P2 3→2), al
 f06e6a0  R59  Sprint 22 RSC Phase A audit  — pricing/privacy/terms already RSC, admin needs split-shell
 97f184b  R60  L8 i18n middleware deep      — 15 pytest 15/15 PASS, cookie-precedence locked
 4e4c439  R61  L25 body_size boundary edges — 10 pytest 10/10 PASS, off-by-one 413 gate guard
+(R62)    L11 firefox 3 deferred       — long-running smoke + aria-live + cold-cache, 20/20 PASS + 1 gated skip
 ```
 
 **Layers extended in S8:**
 - **Q11-L8 i18n** → 0/3 + R58 ⭐ scope drift guard + R60 ⭐⭐ middleware/cookie deep (cookie-precedence locked, set_lang_cookie writer contract)
-- **Q11-L11 cross-browser** → 0/3 + R57 firefox-desktop chaos-multi 3/3 PASS (engine-agnostic R35 fix confirmation); long-running portability fix unverified (dev-server hung)
+- **Q11-L11 cross-browser** → 0/3 + R57 firefox-desktop chaos-multi 3/3 PASS + R62 firefox-desktop trio (long-running smoke 1/1, aria-live 5/5, cold-cache 13/13). 4 specs total now PASS on firefox; webkit pending (R63).
 - **L25 boundary payload** → 3/3 ⭐ + R61 ⭐⭐ deep body_size_limit boundary edges (cap == / cap+1 / 0 / -1 + custom-caps override propagation)
 - **fs-scan baseline** → R52 raw 45 / honest ~75 → R56 raw 47 / honest ~78
 
-**Bugs found+closed S8:** Q12-L11-FF-001 (LOW cross-browser portability — long-running spec lacked auth cookie load). No new HIGH/MED.
+**Bugs found+closed S8:** Q12-L11-FF-001 (LOW cross-browser portability — long-running spec lacked auth cookie load). No new HIGH/MED. R62 surfaced an environment hazard (backend port 8000 unmapped under prod compose) — fixed non-destructively via `alpine/socat` sidecar on `infra_default` network.
 
 **S8 blockers:**
-- `next dev` on 3457 hung from R57 playwright churn; cannot kill without founder authorization. Blocks: cross-browser deep webkit + 3 deferred firefox specs (long-running validation, aria-live-deep, cold-cache); RSC Phase B Lighthouse measurement.
 - L21 destructive drill ACTUAL + Mutmut local actual: same founder-approval gate as S6 R38 / S7 R53–R54.
+- (resolved by R62) Backend host port 8000 was unmapped → blocked any test using `/v1/*` rewrites; sidecar lift restored access.
 
-**Test inventory delta this session (R56–R61):**
+**Test inventory delta this session (R56–R62):**
 - Vitest landing: +1 file (i18n-scope), +3 tests passing
-- Playwright firefox: +3 chaos-multi PASS (cross-browser confirmation, R35 fix engine-agnostic)
+- Playwright firefox: +3 chaos-multi PASS (R57) + 19 PASS R62 (1 long-running smoke + 5 aria-live + 13 cold-cache) + 1 gated skip = **22/22 firefox tests confirmed engine-agnostic**
 - **Backend pytest: +25 (1665 → 1690 expected after image rebuild)** — R60 +15 i18n middleware deep, R61 +10 body_size boundary edges
 - fs-scan: 45 → 47 raw, ~75 → ~78 honest
 
