@@ -35,7 +35,7 @@
 | **L23** | **Q12 NEW S3** | **4/3 ⭐ deep** | observability — sweep 1+2+3 = FULL CLEAN; sweep 4 (R20+R21) closes Founder-verified 31 silent raise sites with 46 emit_event across setup/admin/auth/smart_link/beta_admin (41/41 PASS) |
 | **L24** | **Q12 NEW S4** | **4/3 ⭐ deep** | secret/sensitive leakage FULL CLEAN + deep — sweeps 1–3 (R14/R22/R25) all fixed; sweep 4 (R29) closes verifier.py PyJWTError catch-all str(exc) (Q12-L24-007 LOW, last passive sibling). |
 | **L25** | **Q12 NEW S4** | **3/3 ⭐** | boundary payload FULL CLEAN — sweep 1 (R17) Pydantic Field caps + sweep 2 (R24) workflow/chat caps + sweep 3 (R27) HTTP-layer Content-Length cap (Q12-L25-004 HIGH DoS, Q12-L25-005 MED DoS) (9/9 PASS + 58 sibling regression PASS) |
-| **L26** | **Q12 NEW S5** | **2/3** | JWT lifecycle hardening — sweep 1 (R16) typed exceptions + /me audit + 9 tests; sweep 2 (R30) Playwright 90s heap-drift smoke + 30min gated long + cookie persistence (3 tests, 0.00 MB drift over 90s) |
+| **L26** | **Q12 NEW S5** | **3/3 ⭐** | JWT lifecycle hardening — sweep 1 (R16) typed exceptions + /me audit + 9 tests; sweep 2 (R30) Playwright 90s heap-drift smoke + 30min gated + cookie persistence; **sweep 3 (S6 R37) ACTUAL 30-min Chromium run executed: 5/5 checkpoints captured, heap drift -9.63 MB (heap shrank — GC reclaimed), 0 5xx post-idle. **L26 → 3/3 ⭐**.** |
 
 ---
 
@@ -78,7 +78,7 @@
 | 34 | L21 sweep 3 spec | Ship `scripts/chaos/destructive_drill.sh` (founder-gated, `ABS_DESTRUCTIVE_DRILL=1` default-SKIP) — 7-step destructive fresh-deploy drill against isolated compose namespace (default `q12-l21-drill` on port 28000). Safety guards: default-skip with informative message, `ABS_DRILL_PROJECT` live-namespace refusal (exit 3 for `infra`/`abs-cj`), drill-namespaced data dir, knobs for project name + port + iteration count. Step 7 exercises live R27 BodySizeLimit (60 MB → 413). 7/7 spec tests PASS without invoking the destructive path. **L21 → 3/3 ⭐ spec** (live execution stays a founder-run gate). | 0f787cd | ✅ ship |
 | 35 | Q12-L20-003 frontend fix | Real bug closed (S5 R32 finding). `core/landing/app/panel/chat/ChatClient.tsx` — sessions useQuery `retry: 3 → 1` (cap default exp-backoff that kept isLoading=true ~15s) + new `sessions-error-tile` banner mounts above `<header>` on `isError` regardless of showEmpty/messages.length, with `role="alert"` + `data-test="sessions-error-tile"` + Tekrar dene `refetch()` button. Test: q12-l20-chaos-multi.spec.ts `test.fail()` → `test()` for scenarios 6+7. **12/12 PASS across chromium-desktop+mobile + firefox-desktop + webkit-desktop** (was 0/4 PASS scenarios 6+7). 5/5 single-failure regression also PASS. **L20 → 3/3 ⭐ deep CLOSED** (no open layered bugs). | 96eecaa | ✅ ship |
 | 36 | L18 SW cache impl | Closes S5 SW deferral. New `core/landing/public/sw.js` (vanilla, ~110 lines, no Workbox): `/panel/chat*` cache-first / `/panel/dashboard*` network-first 3s timeout / `/panel/rag*` stale-while-revalidate; exclusions `/v1/*` + `/_next/*` + `/auth/*` + non-GET; cache name `abs-panel-cache-v1`; lifecycle skipWaiting + clients.claim. New `components/panel/ServiceWorkerRegister.tsx` mounts under panel layout (NEXT_PUBLIC_DISABLE_SW=1 opt-out). New spec `q12-l18-sw-cache.spec.ts` 5 cases: sw.js reachable + version marker, exclusion list complete, 3 strategy fns + correct dispatch, 3s timeout const, register mounted. **5/5 PASS**. **L18 → 3/3 ⭐ deep**. No regression on multi-failure chaos (`/v1/*` still passes through to backend). | 63404ff | ✅ ship |
-| 37 | L26 sweep 3 actual | LONG_RUNNING_PLAYWRIGHT=1 30-min empirical run started in background (5 × 6-min idle checkpoints + post-idle endpoint). Heap drift bound 50 MB. Backend stable, dev server reused on port 3457. Result + heap-drift mb data appended to artifact when run completes. | (in flight) | ⏳ in-progress |
+| 37 | L26 sweep 3 actual | LONG_RUNNING_PLAYWRIGHT=1 30-min empirical run COMPLETED. 5/5 checkpoints captured: 6/12/18 min @ 45.20 MB, 24/30 min @ 35.57 MB. **Total drift: -9.63 MB** (heap *shrank* — V8 GC reclaimed; well under 50 MB bound). Endpoint reachable post-idle (test would have failed otherwise). Backend stayed up the full 30 min, no 5xx, no cookie expiry. **L26 → 3/3 ⭐**. | (R37 artifact) | ✅ ship |
 | 38 | L21 destructive drill ACTUAL | Per S6 brief explicit founder-gate: `ABS_DESTRUCTIVE_DRILL=1` not approved this session → SKIPPED. Spec + script + 7/7 spec tests already in S5 R34 (commit 0f787cd). Founder runs `bash scripts/chaos/destructive_drill.sh` locally when ready; L21 then graduates 3/3 ⭐ spec → 4/3 deep. | 449762f | ⏸ skip-deferred |
 | 39 | Q11-L13 Hypothesis fuzz | Property-based fuzz across `/v1/chat/completions` + `/v1/rag/query` + `/v1/workflows/synthesize`. Composite `chat_message()` strategy: roles (string/int/list/None/garbage), content boundary 0..8500 + binary-decoded, list-shaped content. Top-level: 64-bit signed session_id range, top_k -100..10000, query/nl_request binary. Contract: status ∈ {200,400,401,403,404,409,415,422,429,503} — NEVER 5xx. **3/3 PASS**, 1000 examples per surface = 3000 generated examples, 12.17s runtime, **0 counter-examples**. `hypothesis>=6.150` added to `[dev]`. Backend 1630 → 1633. | 52f0442 | ✅ ship |
 | 40 | Q10-L4 a11y deep | aria-live announcement capture via Playwright `addInitScript` MutationObserver + live-DOM SR contract. 5 scenarios: sessions-list 503 → sessions-error-tile role=alert (R35 pin); chat 503 → chat-error-tile role=alert; transcription aria-live=polite present; pricing CheckoutButton 422 (build-conditional skip); announcement infrastructure functional. Engineering note: React 18 batched updates can land before MO flush — assert live-DOM (role + text) as SR contract; observer log is forward-looking annotation only. **4/5 PASS + 1 build-conditional skip**. Q10-L4 → ⭐ FULL CLEAN deep. | ef502a2 | ✅ ship |
@@ -88,18 +88,20 @@
 
 ## Loop status
 
-⏳ **Q12 Session 6 IN-FLIGHT** — 6 of 7 atomic rounds shipped (R35–R41), L26 30-min empirical run still running in background.
+✅ **Q12 Session 6 CLOSING CHECKPOINT** — 7 of 7 atomic rounds shipped (R35–R41).
 
 **Layers graduated in S6:**
-- **L18 → 3/3 ⭐ deep** (R36 SW cache impl)
-- **L20 → 3/3 ⭐ deep CLOSED** (R35 Q12-L20-003 fix; no open layered bugs)
+- **L18 → 3/3 ⭐ deep** (R36 SW cache impl, 5/5 spec)
+- **L20 → 3/3 ⭐ deep CLOSED** (R35 Q12-L20-003 fix; 12/12 PASS; no open layered bugs)
+- **L26 → 3/3 ⭐** (R37 30-min empirical: heap drift -9.63 MB, 0 5xx)
 - **Q10-L4 → ⭐ FULL CLEAN deep** (R40 dynamic SR contract via aria-live capture)
+- **Q11-L13 + 3000 examples** (R39 Hypothesis property-based, 0 counter-examples)
 
-**9 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L21, L22, L23, L24, L25)** — same count as S5 close, but L18 + L20 now deep.
-**Bugs closed in S6:** Q12-L20-003 (MED UX, real bug, fix shipped + 12/12 PASS).
-**Backend pytest: 1633 PASS, 14 skipped** (Δ +3 from S5 1630). **+10 new Playwright tests** (R36 SW=5, R40 a11y=4 PASS + 1 skip; R35 changed scenario 6+7 from FAIL to PASS).
+**10 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L21, L22, L23, L24, L25, L26)** — L26 graduates this session, all 10 Q12 layers now closed.
+**Bugs closed in S6:** Q12-L20-003 (MED UX, real bug shipped + 12/12 PASS across 4 browsers).
+**Backend pytest: 1633 PASS, 14 skipped** (Δ +3 from S5 1630). **+10 new Playwright tests** (R36 SW=5, R40 a11y=4 PASS + 1 skip; R35 chaos test.fail()→test() flips 8 fails to passes across 4 browsers).
 
-**Defer to next session / non-S6 work:** L26 sweep 3 (in flight; result in artifact when done); L21 destructive drill ACTUAL run (founder approval).
+**Defer (non-S6 / future):** L21 destructive drill ACTUAL run (founder approval gate).
 
 **Test inventory baseline (Sprint 21'den devralındı):**
 - Backend pytest: 89 PASS
