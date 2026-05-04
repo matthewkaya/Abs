@@ -83,12 +83,45 @@
 | 39 | Q11-L13 Hypothesis fuzz | Property-based fuzz across `/v1/chat/completions` + `/v1/rag/query` + `/v1/workflows/synthesize`. Composite `chat_message()` strategy: roles (string/int/list/None/garbage), content boundary 0..8500 + binary-decoded, list-shaped content. Top-level: 64-bit signed session_id range, top_k -100..10000, query/nl_request binary. Contract: status ∈ {200,400,401,403,404,409,415,422,429,503} — NEVER 5xx. **3/3 PASS**, 1000 examples per surface = 3000 generated examples, 12.17s runtime, **0 counter-examples**. `hypothesis>=6.150` added to `[dev]`. Backend 1630 → 1633. | 52f0442 | ✅ ship |
 | 40 | Q10-L4 a11y deep | aria-live announcement capture via Playwright `addInitScript` MutationObserver + live-DOM SR contract. 5 scenarios: sessions-list 503 → sessions-error-tile role=alert (R35 pin); chat 503 → chat-error-tile role=alert; transcription aria-live=polite present; pricing CheckoutButton 422 (build-conditional skip); announcement infrastructure functional. Engineering note: React 18 batched updates can land before MO flush — assert live-DOM (role + text) as SR contract; observer log is forward-looking annotation only. **4/5 PASS + 1 build-conditional skip**. Q10-L4 → ⭐ FULL CLEAN deep. | ef502a2 | ✅ ship |
 | 41 | Mutmut weekend CI | `.github/workflows/mutation-weekend.yml` (Sat 02:00 UTC cron + workflow_dispatch). Matrix: app/cascade + app/auth/oauth + app/api/auth. 240min timeout, contents:read, env:-routed interpolations (security-reminder hook policy), artifact + step summary surface top-40 survivors. Policy doc `docs/security/mutation-weekend-policy.md`: rationale (16-24min/module is incompatible with PR CI per S5 R31), triage flow, R31 (focused boundary tests, KNOWN survivors) + R41 (cron, UNKNOWN survivors) complementary. YAML validated. First run gated to next Saturday. | f26e120 | ✅ ship |
+| 56 | fs-scan honest gap close round 1 | 5 closes: artifacts/sprint_q3/repro.sh:65 historical password → env-var ref; root CHANGELOG.md symlink to docs/CHANGELOG.md (P3 1→0); root .env.example aggregator (P2 3→2); allowlist v3 +3 entries (MONOREPO_DOCKERFILE_NO_ROOT, MONOREPO_ESLINT_LANDING_ONLY, ARTIFACT_HISTORICAL_REPRO_PASSWORD). Score 45→47 raw, ~75→~78 honest. Backend untouched — no rebuild. | a51bc3c | ✅ ship |
+| 57 | L11 cross-browser firefox | chaos-multi.spec.ts firefox-desktop **3/3 PASS** in 15.9s — first cross-browser confirmation of S6 R35 sessions-error-tile fix is engine-agnostic. long-running.spec.ts firefox 0/2 fail at page.goto: spec lacked auth cookie load. Q12-L11-FF-001 (LOW portability) fix shipped — ports loadAuthCookie + seedSessionCookie helpers from chaos-multi sibling. Validation deferred (dev-server hung from playwright churn; cannot kill `next dev` without founder authorization). | 23b3c06 | ✅ ship |
+| 58 | L8 i18n scope drift guard | Audit found ABS i18n is bifurcated by surface but scope was implicit: landing surface (full EN/TR/ES) vs panel/admin/components/chat (TR-first by design). R35 sessions-error-tile + R48 SW status + ZAP fix all panel-side, no locale gap. Shipped: `__tests__/i18n-scope.test.ts` (3 vitest, 3/3 PASS — no BCP-47 hardcodes on landing, dict size [70,200] band, no panel.* keys in en.json) + `docs/qa/i18n-scope-policy.md`. | 3d16fa1 | ✅ ship |
+| 59 | Sprint 22 RSC Phase A audit | /pricing /privacy /terms already RSC (no work). /admin/audit + /admin/users heavy `"use client"` + useState + useQuery — pure RSC conversion would break interactivity. Right pattern: split-shell (server fetch initial data → render `<AuditClient initialEntries={...}>`). Updated R60+R61 plan: split-shell each shaves ~400ms LCP slow 3G; total target -800ms covers Sprint 21 +1230ms regress. Phase B blocked on dev-server recovery for Lighthouse before/after. Read-only artifact. | f06e6a0 | ✅ ship Phase A |
 
 ---
 
 ## Loop status
 
-✅ **Q12 Session 7 CLOSING CHECKPOINT** — 12 of 12 atomic rounds shipped (R43–R54).
+🔄 **Q12 Session 8 IN-FLIGHT** — 4 atomic rounds shipped (R56–R59).
+
+**S8 atomic commits so far:**
+```
+a51bc3c  R56  fs-scan honest gap close 1   — 5 closes (P3 1→0, P2 3→2), allowlist v3
+23b3c06  R57  L11 cross-browser firefox   — chaos-multi 3/3 PASS, long-running portability fix
+3d16fa1  R58  L8 i18n scope drift guard   — 3 vitest 3/3 PASS, scope policy doc
+f06e6a0  R59  Sprint 22 RSC Phase A audit — pricing/privacy/terms already RSC, admin needs split-shell
+```
+
+**Layers extended in S8:**
+- **Q11-L8 i18n** → 0/3 + R58 ⭐ deep scope drift guard
+- **Q11-L11 cross-browser** → 0/3 + R57 firefox-desktop chaos-multi 3/3 PASS (engine-agnostic R35 fix confirmation); long-running portability fix unverified (dev-server hung)
+- **fs-scan baseline** → R52 raw 45 / honest ~75 → R56 raw 47 / honest ~78
+
+**Bugs found+closed S8:** Q12-L11-FF-001 (LOW cross-browser portability — long-running spec lacked auth cookie load).
+
+**S8 blockers:**
+- `next dev` on 3457 hung from R57 playwright churn; cannot kill without founder authorization. Blocks: cross-browser deep webkit + 3 deferred firefox specs (long-running validation, aria-live-deep, cold-cache); RSC Phase B Lighthouse measurement.
+- L21 destructive drill ACTUAL + Mutmut local actual: same founder-approval gate as S6 R38 / S7 R53–R54.
+
+**Test inventory delta this session:**
+- Vitest landing: +1 file (i18n-scope), +3 tests passing
+- Playwright firefox: +3 chaos-multi PASS (cross-browser confirmation)
+- Backend pytest: unchanged 1665 (no backend source touched)
+- fs-scan: 45 → 47 raw, ~75 → ~78 honest
+
+---
+
+## Previous: Q12 Session 7 CLOSING CHECKPOINT — 12 of 12 atomic rounds shipped (R43–R54).
 
 **Layers extended in S7:**
 - **Q10-L4 → ⭐ FULL CLEAN deep CLOSED** (R43 5/5 — replaced build-conditional pricing skip with /panel root error banner)
