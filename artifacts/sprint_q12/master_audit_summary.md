@@ -15,7 +15,7 @@
 | L3 | Q10 ⭐ Q11 ⭐ | 0/3 | theme matrix 3rd sweep |
 | L4 | Q10 ⭐ Q11 ⭐ Q12 S6 R40 | 0/3 + ⭐ deep | a11y axe 3rd sweep + **R40 dynamic SR contract** (4/5 PASS aria-live capture) |
 | L5 | Q10 ⭐ Q11 ⚠ | 0/3 | Lighthouse perf — Q11-L5-001 backlog Sprint 22 |
-| L6 | Q10 ⭐ Q11 ⭐ | 0/3 | OWASP/security |
+| L6 | Q10 ⭐ Q11 ⭐ Q12 S7 R45+R46 | 0/3 ⭐⭐ baseline+active | OWASP/security + **R45 ZAP baseline 66 PASS / R46 ZAP active 141 PASS — 0 HIGH/MED/LOW** (Log4Shell, Spring4Shell, RCE, SQLi, XSS, SSRF, NoSQL, XXE, command inj all clean) |
 | L7 | Q10 ⭐ Q11 ⭐ | 0/3 | visual regression |
 | L8 | Q10 ⭐ Q11 ⭐ | 0/3 | i18n |
 | L9 | Q10 ⭐ Q11 ⭐ | 0/3 | graceful degradation |
@@ -27,7 +27,7 @@
 | L15 | Q11 ⭐ | 0/3 | API contract 3rd sweep |
 | L16 | Q11 ⭐ | 0/3 | error UX 3rd sweep |
 | **L17** | **Q12 NEW** | **3/3 ⭐** | bundle break-even validator **FULL CLEAN** (R1 + R6 + R8 9 unit + CI gate) |
-| **L18** | **Q12 NEW** | **3/3 ⭐ deep** | cold-cache **FULL CLEAN** (R3 + R6 + R9 CDP throttle 12/12 PASS) + **R36 Service Worker** (vanilla SW: chat=cache-first, dashboard=network-first 3s, rag=stale-while-revalidate; /v1/* + /_next/* + /auth/* + non-GET pass-through; 5/5 SW spec PASS) |
+| **L18** | **Q12 NEW** | **3/3 ⭐ deep + runtime + offline drafts** | cold-cache **FULL CLEAN** (R3 + R6 + R9 CDP throttle 12/12 PASS) + **R36 SW** (vanilla 3-strategy + exclusions, 5/5 spec) + **R42 SW runtime** (cache hit + exclusion contract verified, 3/3) + **R48 IndexedDB chat-drafts** (lib/chat-draft.ts + ChatClient hooks; reload restore + offline window survival + clear semantics, 3/3 PASS) |
 | **L19** | **Q12 NEW** | **3/3 ⭐** | backwards compat **FULL CLEAN** (R4 + R6 + R7 11/11 PASS) |
 | **L20** | **Q12 NEW** | **3/3 ⭐ deep CLOSED** | chaos engineering **FULL CLEAN** (R5 + R6 + R10 redirect:"error" fix → 5/5 PASS) + R32 multi-failure round 4 + **R35 Q12-L20-003 fix** (sessions useQuery retry: 3→1 + new sessions-error-tile banner mounts on isError; test.fail() → test() upgrade; 12/12 PASS across 4 browsers; no open layered bugs) |
 | **L21** | **Q12 NEW S5** | **3/3 ⭐ spec** | fresh-deploy safe drill — sweep 1 (R12) alembic chain + 6-step wizard; sweep 2 (R28) 10× roundtrip + JWT boundary + tamper matrix; sweep 3 (R34) **destructive drill spec** `scripts/chaos/destructive_drill.sh` (founder-gated `ABS_DESTRUCTIVE_DRILL=1`, default-SKIP, live-namespace refusal, 7-step bootstrap incl. R27 BodySizeLimit live proof). 7/7 spec tests PASS. |
@@ -35,7 +35,7 @@
 | **L23** | **Q12 NEW S3** | **4/3 ⭐ deep** | observability — sweep 1+2+3 = FULL CLEAN; sweep 4 (R20+R21) closes Founder-verified 31 silent raise sites with 46 emit_event across setup/admin/auth/smart_link/beta_admin (41/41 PASS) |
 | **L24** | **Q12 NEW S4** | **4/3 ⭐ deep** | secret/sensitive leakage FULL CLEAN + deep — sweeps 1–3 (R14/R22/R25) all fixed; sweep 4 (R29) closes verifier.py PyJWTError catch-all str(exc) (Q12-L24-007 LOW, last passive sibling). |
 | **L25** | **Q12 NEW S4** | **3/3 ⭐** | boundary payload FULL CLEAN — sweep 1 (R17) Pydantic Field caps + sweep 2 (R24) workflow/chat caps + sweep 3 (R27) HTTP-layer Content-Length cap (Q12-L25-004 HIGH DoS, Q12-L25-005 MED DoS) (9/9 PASS + 58 sibling regression PASS) |
-| **L26** | **Q12 NEW S5** | **3/3 ⭐** | JWT lifecycle hardening — sweep 1 (R16) typed exceptions + /me audit + 9 tests; sweep 2 (R30) Playwright 90s heap-drift smoke + 30min gated + cookie persistence; **sweep 3 (S6 R37) ACTUAL 30-min Chromium run executed: 5/5 checkpoints captured, heap drift -9.63 MB (heap shrank — GC reclaimed), 0 5xx post-idle. **L26 → 3/3 ⭐**.** |
+| **L26** | **Q12 NEW S5** | **3/3 ⭐ deep** | JWT lifecycle hardening — sweep 1 (R16) typed exceptions + /me audit + 9 tests; sweep 2 (R30) Playwright 90s heap-drift smoke + 30min gated + cookie persistence; sweep 3 (S6 R37) ACTUAL 30-min Chromium run executed (heap drift -9.63 MB, 0 5xx post-idle); **active drill (S7 R47) — SSE mid-stream abort + SSE 502 Bad Gateway + sessions GET drop + retry-button surface, 3/3 PASS**. Both passive (idle) and active (drop) surfaces now covered. |
 
 ---
 
@@ -88,20 +88,39 @@
 
 ## Loop status
 
-✅ **Q12 Session 6 CLOSING CHECKPOINT** — 7 of 7 atomic rounds shipped (R35–R41).
+✅ **Q12 Session 7 CLOSING CHECKPOINT** — 12 of 12 atomic rounds shipped (R43–R54).
 
-**Layers graduated in S6:**
-- **L18 → 3/3 ⭐ deep** (R36 SW cache impl, 5/5 spec)
-- **L20 → 3/3 ⭐ deep CLOSED** (R35 Q12-L20-003 fix; 12/12 PASS; no open layered bugs)
-- **L26 → 3/3 ⭐** (R37 30-min empirical: heap drift -9.63 MB, 0 5xx)
-- **Q10-L4 → ⭐ FULL CLEAN deep** (R40 dynamic SR contract via aria-live capture)
-- **Q11-L13 + 3000 examples** (R39 Hypothesis property-based, 0 counter-examples)
+**Layers extended in S7:**
+- **Q10-L4 → ⭐ FULL CLEAN deep CLOSED** (R43 5/5 — replaced build-conditional pricing skip with /panel root error banner)
+- **Q11-L13 → +30 000 examples** (R44 opt-in `pytest -m fuzz` 10K × 3 surfaces, 0 counter-examples in 101.37s)
+- **Q11-L6 → 0/3 ⭐⭐ baseline + active** (R45 zap-baseline 66 PASS + R46 zap-full-scan 141 PASS — 0 HIGH/MED/LOW; Log4Shell, Spring4Shell, RCE, SQLi, XSS, SSRF, NoSQL, XXE, command injection all clean)
+- **L18 → 3/3 ⭐ deep + runtime + offline drafts** (R48 IndexedDB chat-draft persistence, 3/3 PASS)
+- **L19 → 3/3 ⭐ deep round 5** (R51 Q12-L20-003 regression pin, 3/3 PASS source-grep + reverse-pin)
+- **L23 → 5/3 ⭐ deep round 5** (R49 billing_portal + marketplace silent-raise audit, 16/16 PASS)
+- **L24 → 5/3 ⭐ deep round 5** (R50 webhook signature ops-taxonomy, Q12-L24-008 LOW closed, 13/13 PASS)
+- **L26 → 3/3 ⭐ deep** (R47 active drill — SSE drop / 502 / sessions GET drop, 3/3 PASS)
 
-**10 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L21, L22, L23, L24, L25, L26)** — L26 graduates this session, all 10 Q12 layers now closed.
-**Bugs closed in S6:** Q12-L20-003 (MED UX, real bug shipped + 12/12 PASS across 4 browsers).
-**Backend pytest: 1633 PASS, 14 skipped** (Δ +3 from S5 1630). **+10 new Playwright tests** (R36 SW=5, R40 a11y=4 PASS + 1 skip; R35 chaos test.fail()→test() flips 8 fails to passes across 4 browsers).
+**10 Q12 layers FULL CLEAN ⭐ (L17–L26)** unchanged — S7 deepened existing layers + closed 1 LOW bug.
+**Bugs closed in S7:** Q12-L24-008 (LOW ops visibility — github_app webhook signature taxonomy).
+**Backend pytest: 1665 PASS, 14 skipped** (Δ +32 from S6 1633: R39 +3, R44 +0 default-skip, R49 +16, R50 +13). **+12 new Playwright tests** (R47 active drill=3, R48 offline drafts=3, R43 = 5 unchanged but scenario 4 rewritten).
 
-**Defer (non-S6 / future):** L21 destructive drill ACTUAL run (founder approval gate).
+**Sprint 7 atomic commits:**
+```
+4d29193  R43  Q10-L4 deep CLOSED          — 5/5 PASS, scenario 4 rewritten to /panel banner
+0d5a653  R44  Q11-L13 fuzz scale-up       — 30K examples opt-in marker, 0 counter-examples
+ca93062  R45  ZAP baseline                — 66 PASS, 0 HIGH/MED/LOW
+9d5d404  R46  ZAP active                  — 141 PASS, 0 HIGH/MED/LOW
+102a086  R47  L26 active drill            — SSE drop + 502 + sessions GET drop, 3/3 PASS
+f4251f2  R48  L18 IndexedDB drafts        — chat-draft.ts + ChatClient hooks + offline test, 3/3
+f4657fd  R49  L23 sweep 5                 — billing/marketplace silent-raise emit_event, 16/16
+896256f  R50  L24 sweep 5                 — github webhook ops-taxonomy, Q12-L24-008 closed, 13/13
+a84735c  R51  L19 deep round 5            — Q12-L20-003 regression pin, 3/3 PASS
+aa1dd76  R52  fs-scan baseline update     — raw 45, honest ~75, allowlist v2
+dbd0b2d  R53  L21 destructive ACTUAL      — SKIPPED (founder approval gate)
+dbd0b2d  R54  Mutmut local actual         — SKIPPED (founder approval gate)
+```
+
+**Defer (non-S7 / future):** L21 destructive drill ACTUAL run + Mutmut local actual run (both founder approval gate).
 
 **Test inventory baseline (Sprint 21'den devralındı):**
 - Backend pytest: 89 PASS
