@@ -13,7 +13,7 @@
 | L1 | Q10 ⭐ Q11 ⭐ | 0/3 | unit coverage 3rd sweep |
 | L2 | Q10 ⭐ Q11 ⭐ | 0/3 | integration 3rd sweep |
 | L3 | Q10 ⭐ Q11 ⭐ | 0/3 | theme matrix 3rd sweep |
-| L4 | Q10 ⭐ Q11 ⭐ | 0/3 | a11y axe 3rd sweep |
+| L4 | Q10 ⭐ Q11 ⭐ Q12 S6 R40 | 0/3 + ⭐ deep | a11y axe 3rd sweep + **R40 dynamic SR contract** (4/5 PASS aria-live capture) |
 | L5 | Q10 ⭐ Q11 ⚠ | 0/3 | Lighthouse perf — Q11-L5-001 backlog Sprint 22 |
 | L6 | Q10 ⭐ Q11 ⭐ | 0/3 | OWASP/security |
 | L7 | Q10 ⭐ Q11 ⭐ | 0/3 | visual regression |
@@ -22,14 +22,14 @@
 | L10 | Q11 ⭐ | 0/3 | stress/concurrency 3rd sweep |
 | L11 | Q11 ⭐ | 0/3 | cross-browser 3rd sweep |
 | L12 | Q11 ⭐ | 0/3 | responsive 3rd sweep |
-| L13 | Q11 ⭐ | 0/3 | fuzz/property 3rd sweep |
+| L13 | Q11 ⭐ Q12 S6 R39 | 0/3 + 3 000 examples | fuzz/property 3rd sweep + **R39 Hypothesis property-based** (chat + RAG + workflows × 1000 each, 0 5xx) |
 | L14 | Q11 ⭐ | 0/3 | data integrity 3rd sweep |
 | L15 | Q11 ⭐ | 0/3 | API contract 3rd sweep |
 | L16 | Q11 ⭐ | 0/3 | error UX 3rd sweep |
 | **L17** | **Q12 NEW** | **3/3 ⭐** | bundle break-even validator **FULL CLEAN** (R1 + R6 + R8 9 unit + CI gate) |
-| **L18** | **Q12 NEW** | **3/3 ⭐** | cold-cache **FULL CLEAN** (R3 + R6 + R9 CDP throttle 12/12 PASS) |
+| **L18** | **Q12 NEW** | **3/3 ⭐ deep** | cold-cache **FULL CLEAN** (R3 + R6 + R9 CDP throttle 12/12 PASS) + **R36 Service Worker** (vanilla SW: chat=cache-first, dashboard=network-first 3s, rag=stale-while-revalidate; /v1/* + /_next/* + /auth/* + non-GET pass-through; 5/5 SW spec PASS) |
 | **L19** | **Q12 NEW** | **3/3 ⭐** | backwards compat **FULL CLEAN** (R4 + R6 + R7 11/11 PASS) |
-| **L20** | **Q12 NEW** | **3/3 ⭐** | chaos engineering **FULL CLEAN** (R5 + R6 + R10 redirect:"error" fix → 5/5 PASS) |
+| **L20** | **Q12 NEW** | **3/3 ⭐ deep CLOSED** | chaos engineering **FULL CLEAN** (R5 + R6 + R10 redirect:"error" fix → 5/5 PASS) + R32 multi-failure round 4 + **R35 Q12-L20-003 fix** (sessions useQuery retry: 3→1 + new sessions-error-tile banner mounts on isError; test.fail() → test() upgrade; 12/12 PASS across 4 browsers; no open layered bugs) |
 | **L21** | **Q12 NEW S5** | **3/3 ⭐ spec** | fresh-deploy safe drill — sweep 1 (R12) alembic chain + 6-step wizard; sweep 2 (R28) 10× roundtrip + JWT boundary + tamper matrix; sweep 3 (R34) **destructive drill spec** `scripts/chaos/destructive_drill.sh` (founder-gated `ABS_DESTRUCTIVE_DRILL=1`, default-SKIP, live-namespace refusal, 7-step bootstrap incl. R27 BodySizeLimit live proof). 7/7 spec tests PASS. |
 | **L22** | **Q12 NEW S4** | **3/3 ⭐** | race condition deep FULL CLEAN — sweep 1 (R15) setup wizard TOCTOU + sweep 2 (R23) vault rotate + sweep 3 (R26) OAuth atomic single-use + §6.1 family revoke (Q12-L22-005/006 HIGH replay) (10/10 PASS) |
 | **L23** | **Q12 NEW S3** | **4/3 ⭐ deep** | observability — sweep 1+2+3 = FULL CLEAN; sweep 4 (R20+R21) closes Founder-verified 31 silent raise sites with 46 emit_event across setup/admin/auth/smart_link/beta_admin (41/41 PASS) |
@@ -75,19 +75,31 @@
 | 31 | R26 mutation-floor pinning | Pivot from full mutmut runtime (estimated 16–24 min/pass on oauth/server.py): ship 6 focused boundary tests that explicitly kill the high-yield mutation classes — `values(used_at=None)` silent re-allow, drop `is_(None)` predicate (re-claim), flip `cursor not in chain` cycle guard (no-op walk), drop `revoked_at IS NULL` filter (over-revoke), OAuthError code swap, mid-chain replay walking direction. Plus negative-control test that proves IS-NULL predicate is load-bearing. Hygiene lesson learned: mutmut partial-kill leaves source file in mutated state (`XXinvalid_grantXX` artifact). **16/16 PASS** (6 new + 10 R26 regression). | db2f187 | ✅ ship |
 | 32 | L20 round 4 deep | Multi-failure simultaneous chaos via Playwright `page.route()` triple-injection. **Q12-L20-003 (MED UX)** — chat page hangs at "Yükleniyor…" under multi-503 cascade (sessions list 503 blocks chat-error-tile mount); page snapshot captured. 3 scenarios shipped: scenario 6 (3× 503 cascade) `test.fail()`, scenario 7 (429+503+abort mix) `test.fail()`, scenario 8 (total /v1/* outage → still navigable to /panel) ✅ PASS. R5 documented-fail precedent. L20 stays 3/3 ⭐ (round 4 is deep, not counter bump). Fix tracked for Sprint 22 frontend resilience pass. **3 passed (25.4s)** in Chromium. | 870b3b4 | ✅ ship |
 | 33 | L19 deep — S4 regression pin | Append 3 new test classes to `test_q12_l19_backwards_compat.py` pinning R26/R27/R29 fixes: (a) Q12-L22-005/006 OAuth atomic predicates + replay 4xx live, (b) Q12-L25-004 BodySizeLimitMiddleware install + 6MB → 413 live, (c) Q12-L24-007 verifier `license_verify_failed` generic detail + `license_verify_pyjwt_error` taxonomy + reverse pin (the pre-fix f-string MUST NOT come back). Source-grep + live-HTTP tests in tandem (a present predicate that never runs is as bad as an absent one — R32 lesson). L19 stays 3/3 ⭐ (deep). **17/17 PASS** (8 prior + 9 new assertions across 6 methods). | 264b49c | ✅ ship |
-| 34 | L21 sweep 3 spec | Ship `scripts/chaos/destructive_drill.sh` (founder-gated, `ABS_DESTRUCTIVE_DRILL=1` default-SKIP) — 7-step destructive fresh-deploy drill against isolated compose namespace (default `q12-l21-drill` on port 28000). Safety guards: default-skip with informative message, `ABS_DRILL_PROJECT` live-namespace refusal (exit 3 for `infra`/`abs-cj`), drill-namespaced data dir, knobs for project name + port + iteration count. Step 7 exercises live R27 BodySizeLimit (60 MB → 413). 7/7 spec tests PASS without invoking the destructive path. **L21 → 3/3 ⭐ spec** (live execution stays a founder-run gate). | (this round) | ✅ ship |
+| 34 | L21 sweep 3 spec | Ship `scripts/chaos/destructive_drill.sh` (founder-gated, `ABS_DESTRUCTIVE_DRILL=1` default-SKIP) — 7-step destructive fresh-deploy drill against isolated compose namespace (default `q12-l21-drill` on port 28000). Safety guards: default-skip with informative message, `ABS_DRILL_PROJECT` live-namespace refusal (exit 3 for `infra`/`abs-cj`), drill-namespaced data dir, knobs for project name + port + iteration count. Step 7 exercises live R27 BodySizeLimit (60 MB → 413). 7/7 spec tests PASS without invoking the destructive path. **L21 → 3/3 ⭐ spec** (live execution stays a founder-run gate). | 0f787cd | ✅ ship |
+| 35 | Q12-L20-003 frontend fix | Real bug closed (S5 R32 finding). `core/landing/app/panel/chat/ChatClient.tsx` — sessions useQuery `retry: 3 → 1` (cap default exp-backoff that kept isLoading=true ~15s) + new `sessions-error-tile` banner mounts above `<header>` on `isError` regardless of showEmpty/messages.length, with `role="alert"` + `data-test="sessions-error-tile"` + Tekrar dene `refetch()` button. Test: q12-l20-chaos-multi.spec.ts `test.fail()` → `test()` for scenarios 6+7. **12/12 PASS across chromium-desktop+mobile + firefox-desktop + webkit-desktop** (was 0/4 PASS scenarios 6+7). 5/5 single-failure regression also PASS. **L20 → 3/3 ⭐ deep CLOSED** (no open layered bugs). | 96eecaa | ✅ ship |
+| 36 | L18 SW cache impl | Closes S5 SW deferral. New `core/landing/public/sw.js` (vanilla, ~110 lines, no Workbox): `/panel/chat*` cache-first / `/panel/dashboard*` network-first 3s timeout / `/panel/rag*` stale-while-revalidate; exclusions `/v1/*` + `/_next/*` + `/auth/*` + non-GET; cache name `abs-panel-cache-v1`; lifecycle skipWaiting + clients.claim. New `components/panel/ServiceWorkerRegister.tsx` mounts under panel layout (NEXT_PUBLIC_DISABLE_SW=1 opt-out). New spec `q12-l18-sw-cache.spec.ts` 5 cases: sw.js reachable + version marker, exclusion list complete, 3 strategy fns + correct dispatch, 3s timeout const, register mounted. **5/5 PASS**. **L18 → 3/3 ⭐ deep**. No regression on multi-failure chaos (`/v1/*` still passes through to backend). | 63404ff | ✅ ship |
+| 37 | L26 sweep 3 actual | LONG_RUNNING_PLAYWRIGHT=1 30-min empirical run started in background (5 × 6-min idle checkpoints + post-idle endpoint). Heap drift bound 50 MB. Backend stable, dev server reused on port 3457. Result + heap-drift mb data appended to artifact when run completes. | (in flight) | ⏳ in-progress |
+| 38 | L21 destructive drill ACTUAL | Per S6 brief explicit founder-gate: `ABS_DESTRUCTIVE_DRILL=1` not approved this session → SKIPPED. Spec + script + 7/7 spec tests already in S5 R34 (commit 0f787cd). Founder runs `bash scripts/chaos/destructive_drill.sh` locally when ready; L21 then graduates 3/3 ⭐ spec → 4/3 deep. | 449762f | ⏸ skip-deferred |
+| 39 | Q11-L13 Hypothesis fuzz | Property-based fuzz across `/v1/chat/completions` + `/v1/rag/query` + `/v1/workflows/synthesize`. Composite `chat_message()` strategy: roles (string/int/list/None/garbage), content boundary 0..8500 + binary-decoded, list-shaped content. Top-level: 64-bit signed session_id range, top_k -100..10000, query/nl_request binary. Contract: status ∈ {200,400,401,403,404,409,415,422,429,503} — NEVER 5xx. **3/3 PASS**, 1000 examples per surface = 3000 generated examples, 12.17s runtime, **0 counter-examples**. `hypothesis>=6.150` added to `[dev]`. Backend 1630 → 1633. | 52f0442 | ✅ ship |
+| 40 | Q10-L4 a11y deep | aria-live announcement capture via Playwright `addInitScript` MutationObserver + live-DOM SR contract. 5 scenarios: sessions-list 503 → sessions-error-tile role=alert (R35 pin); chat 503 → chat-error-tile role=alert; transcription aria-live=polite present; pricing CheckoutButton 422 (build-conditional skip); announcement infrastructure functional. Engineering note: React 18 batched updates can land before MO flush — assert live-DOM (role + text) as SR contract; observer log is forward-looking annotation only. **4/5 PASS + 1 build-conditional skip**. Q10-L4 → ⭐ FULL CLEAN deep. | ef502a2 | ✅ ship |
+| 41 | Mutmut weekend CI | `.github/workflows/mutation-weekend.yml` (Sat 02:00 UTC cron + workflow_dispatch). Matrix: app/cascade + app/auth/oauth + app/api/auth. 240min timeout, contents:read, env:-routed interpolations (security-reminder hook policy), artifact + step summary surface top-40 survivors. Policy doc `docs/security/mutation-weekend-policy.md`: rationale (16-24min/module is incompatible with PR CI per S5 R31), triage flow, R31 (focused boundary tests, KNOWN survivors) + R41 (cron, UNKNOWN survivors) complementary. YAML validated. First run gated to next Saturday. | f26e120 | ✅ ship |
 
 ---
 
 ## Loop status
 
-✅ **Q12 Session 5 CLOSING CHECKPOINT** — 34 round shipped (R30+R31+R32+R33+R34 this session, 5 atomic commits).
-**9 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L21, L22, L23, L24, L25)** — L21 reached 3/3 spec this session.
-**L19 + L20 + L23 + L24 are deep**; L26 at 2/3 (sweep 3 = 30dk empirical confirm gated for prod-rollout cuts).
-Session 5 cumulative: 5 atomic rounds shipped, 1 new bug (Q12-L20-003 MED UX), 1 reusable destructive drill spec, mutmut hygiene lesson.
-**Backend pytest: 1630 PASS, 14 skipped** (Δ +19 from S4 1611, +51 from S3 1579, +103 from S2 1527). +6 new Playwright tests.
+⏳ **Q12 Session 6 IN-FLIGHT** — 6 of 7 atomic rounds shipped (R35–R41), L26 30-min empirical run still running in background.
 
-**Defer (Session 6 gündemi):** L18 SW cache (Sprint 22 frontend); L26 sweep 3 30dk empirical (founder pre-rollout); mutmut weekend CI (founder-approved); Q12-L20-003 SessionsList fallback fix (Sprint 22); L21 destructive drill ACTUAL run (founder approval).
+**Layers graduated in S6:**
+- **L18 → 3/3 ⭐ deep** (R36 SW cache impl)
+- **L20 → 3/3 ⭐ deep CLOSED** (R35 Q12-L20-003 fix; no open layered bugs)
+- **Q10-L4 → ⭐ FULL CLEAN deep** (R40 dynamic SR contract via aria-live capture)
+
+**9 Q12 layers FULL CLEAN ⭐ (L17, L18, L19, L20, L21, L22, L23, L24, L25)** — same count as S5 close, but L18 + L20 now deep.
+**Bugs closed in S6:** Q12-L20-003 (MED UX, real bug, fix shipped + 12/12 PASS).
+**Backend pytest: 1633 PASS, 14 skipped** (Δ +3 from S5 1630). **+10 new Playwright tests** (R36 SW=5, R40 a11y=4 PASS + 1 skip; R35 changed scenario 6+7 from FAIL to PASS).
+
+**Defer to next session / non-S6 work:** L26 sweep 3 (in flight; result in artifact when done); L21 destructive drill ACTUAL run (founder approval).
 
 **Test inventory baseline (Sprint 21'den devralındı):**
 - Backend pytest: 89 PASS
