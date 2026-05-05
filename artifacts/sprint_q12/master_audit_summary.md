@@ -258,6 +258,60 @@ Tester teslimat eşiği **MÜHÜRLÜ**. Founder runs the 7-step pre-handoff list
 in `docs/qa/founder_action_items.md`, tags `handoff/v1`, ships repo + key +
 provider list to tester. Detail: `artifacts/sprint_q12/session_11_complete.md`.
 
+> **⚠️ S11 MÜHÜR retracted by founder host run 2026-05-05** — selective
+> subset PASS gave a false GREEN; full backend suite reported 1735 passed /
+> 3 failed / 17 errors. Q12-L19-001 lesson 4th repeat. See Session 12.
+
+---
+
+## Q12 Session 12 — REGRESSION CLOSE-OUT (real MÜHÜR)
+
+**Date:** 2026-05-05 · **HEAD before S12:** `38b3500` · **Round:** R96–R99
+(single-commit atomic fix + verification)
+
+S11 baseline `1735 / 3 fail / 17 error` resolved by ONE root cause:
+`tests/test_q12_magic_link_e2e.py` ran the magic-link claim flow without
+isolating `settings.data_dir`, so each `_claim_user_by_token`
+(`auth.py:413`) wrote `admin_credentials.json` into the session-scope tmp
+dir. Every later `admin@local + CHANGEME` login was 401 because the file
+overlay overrode the bootstrap fallback. Sister test
+`test_q12_r91_final_acceptance` ran the same flow safely thanks to its
+`_fresh_state` fixture; magic_link_e2e simply lacked it.
+
+Secondary leak: `test_chat_sessions_empty_list` asserts the GET returns
+`[]` but earlier tests had created `ChatSession` rows on `tenant_slug=
+"default"` (the bootstrap admin's tenant) which persist in the
+session-scope sqlite DB. Per-test default-tenant wipe makes the contract
+suite-order independent.
+
+| Round | Focus | Commit | Status |
+|-------|-------|--------|--------|
+| R96 | `test_q12_magic_link_e2e.py` `_isolate_data_dir(monkeypatch, tmp_path)` autouse — pins `data_dir` + writes completed `setup_state.json` per test. **Closes Grup A (3 fail) + Grup B (7 error) — same root cause.** | (this commit) | ✅ |
+| R97 | (folded into R96 — single root cause for Grup A+B) | (this commit) | ✅ |
+| R98 | `test_q8_chat.py` `_wipe_default_tenant_chat_state()` autouse — per-test delete `ChatSession`+`ChatMessage` on `tenant_slug=default`. Closes Grup C (10 error). | (this commit) | ✅ |
+| R99 | Full suite re-run: **1755 passed / 0 failed / 0 errors / 14 skipped / 3 deselected** in 176.13s | (this commit) | ✅ ALL GREEN |
+
+**Bisect chain (3 narrowing runs, no commit-level bisect needed):**
+- `tests/test_q*.py + secrets_api -x` → first ERROR at provider_degradation
+- `license_full_lifecycle + magic_link + provider + secrets` → repro
+- `license_full_lifecycle + provider + secrets` → 18/18 PASS (license innocent)
+- `magic_link + provider + secrets` → repro confirmed → polluter = magic_link
+- `magic_link + q8_chat` → repro for Group C → same polluter
+
+**Files changed:** 2 (test fixtures only).
+- `core/backend/tests/test_q12_magic_link_e2e.py` — +44 lines (autouse fixture + imports)
+- `core/backend/tests/test_q8_chat.py` — +30 lines (autouse fixture)
+
+**No application code changed.** No git revert. No new tests, no new
+layers (per Session 12 brief explicit no-new-test rule).
+
+```
+pytest_full_suite: 1755 passed / 0 failed / 0 errors / 14 skipped / 3 deselected
+```
+
+Brief target `X ≥ 1755` met exactly. **Real MÜHÜR contingent on R100
+docs alignment with regression-free state** (next round).
+
 ---
 
 ## Loop control
