@@ -289,7 +289,8 @@ suite-order independent.
 | R96 | `test_q12_magic_link_e2e.py` `_isolate_data_dir(monkeypatch, tmp_path)` autouse — pins `data_dir` + writes completed `setup_state.json` per test. **Closes Grup A (3 fail) + Grup B (7 error) — same root cause.** | (this commit) | ✅ |
 | R97 | (folded into R96 — single root cause for Grup A+B) | (this commit) | ✅ |
 | R98 | `test_q8_chat.py` `_wipe_default_tenant_chat_state()` autouse — per-test delete `ChatSession`+`ChatMessage` on `tenant_slug=default`. Closes Grup C (10 error). | (this commit) | ✅ |
-| R99 | Full suite re-run: **1755 passed / 0 failed / 0 errors / 14 skipped / 3 deselected** in 176.13s | (this commit) | ✅ ALL GREEN |
+| R99 | Full suite re-run: **1755 passed / 0 failed / 0 errors / 14 skipped / 3 deselected** in 176.13s | `dbaeca8` | ✅ ALL GREEN |
+| R100 | Tester docs aligned with regression-free state — `tester_handoff_checklist.md` + `founder_action_items.md` updated; new §0 mandatory pre-flight gate (full backend suite must be GREEN before any other step). | `b779a91` | ✅ shipped |
 
 **Bisect chain (3 narrowing runs, no commit-level bisect needed):**
 - `tests/test_q*.py + secrets_api -x` → first ERROR at provider_degradation
