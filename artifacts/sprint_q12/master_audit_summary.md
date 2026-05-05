@@ -238,6 +238,28 @@ dbd0b2d  R54  Mutmut local actual         — SKIPPED (founder approval gate)
 
 ---
 
+## Q12 Session 11 — TESTER TESLİMAT EŞİĞİ MÜHÜR
+
+**Date:** 2026-05-05 · **HEAD before S11:** `9c6d05c` · **HEAD after R94:** `a7069b6`
+
+5 atomic rounds shipped (R91–R95). Sprint Q12 round count: **96** (R1–R95 +
+this close-out). Backend pytest **1791** PASS (+1 from R91 combined E2E).
+fs-scan honest score **95+** preserved (no scan-relevant surface change).
+
+| Round | Focus | Commit | Status |
+|-------|-------|--------|--------|
+| R91 | Final acceptance combined E2E (6-phase) — setup + provider degradation + license JWT lifecycle + magic-link multi-admin + chat + failure recovery | `ddfdf8c` | ✅ 1/1 PASS |
+| R92 | Tester handoff checklist (`docs/qa/tester_handoff_checklist.md`, 5518 B) | `ff70a74` | ✅ shipped |
+| R93 | Founder action items 7-step (`docs/qa/founder_action_items.md`, 9009 B) | `cc0a5d8` | ✅ shipped |
+| R94 | Doc final review — README test counts + troubleshooting Cerbos/Lighthouse | `a7069b6` | ✅ shipped |
+| R95 | Final fs-scan + master audit close + Session 11 closing summary | (this commit) | ✅ closing |
+
+Tester teslimat eşiği **MÜHÜRLÜ**. Founder runs the 7-step pre-handoff list
+in `docs/qa/founder_action_items.md`, tags `handoff/v1`, ships repo + key +
+provider list to tester. Detail: `artifacts/sprint_q12/session_11_complete.md`.
+
+---
+
 ## Loop control
 
 Context dolunca otomatik dur. Founder /resume eder. Atomic commit
