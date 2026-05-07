@@ -119,7 +119,7 @@ Expected delta: `groq.answer_relevance ≥ mock.answer_relevance + 0.2` (mock ba
 ### Phase 9 (recruit-gated)
 Three blocking questions for the operator:
 
-1. 5 listener email/Slack list (Enes + 2 ekip + 2 beta)
+1. 5 listener email/Slack list (founder + 2 ekip + 2 beta)
 2. Form tool: Google Forms or custom UI
 3. Beta customer recruit channel (existing user list / cold outreach)
 

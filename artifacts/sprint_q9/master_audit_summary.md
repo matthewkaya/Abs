@@ -165,4 +165,4 @@ Playwright: 11-step script ready, run pending docker stack
 ---
 
 **Hazırlayan:** Worker Q9 (Opus 4.7 1M)
-**Review hedefi:** Founder Enes — `phaseO` live run, sıfır bug verify
+**Review hedefi:** Founder — `phaseO` live run, sıfır bug verify
