@@ -1,0 +1,131 @@
+{
+  "started_at": "2026-05-07T10:43:47+00:00",
+  "finished_at": "2026-05-07T10:43:47+00:00",
+  "duration_s": 0.121,
+  "report": {
+    "chain": [
+      "anthropic",
+      "groq",
+      "cerebras",
+      "gemini",
+      "cloudflare",
+      "cohere"
+    ],
+    "rounds": [
+      {
+        "killed": null,
+        "chain": [
+          "anthropic",
+          "groq",
+          "cerebras",
+          "gemini",
+          "cloudflare",
+          "cohere"
+        ],
+        "expected_answerer": "anthropic",
+        "actual_answerer": "anthropic",
+        "pass": true,
+        "error": null,
+        "elapsed_ms": 0.42
+      },
+      {
+        "killed": "anthropic",
+        "chain": [
+          "anthropic",
+          "groq",
+          "cerebras",
+          "gemini",
+          "cloudflare",
+          "cohere"
+        ],
+        "expected_answerer": "groq",
+        "actual_answerer": "groq",
+        "pass": true,
+        "error": null,
+        "elapsed_ms": 0.3
+      },
+      {
+        "killed": "groq",
+        "chain": [
+          "anthropic",
+          "groq",
+          "cerebras",
+          "gemini",
+          "cloudflare",
+          "cohere"
+        ],
+        "expected_answerer": "anthropic",
+        "actual_answerer": "anthropic",
+        "pass": true,
+        "error": null,
+        "elapsed_ms": 0.13
+      },
+      {
+        "killed": "cerebras",
+        "chain": [
+          "anthropic",
+          "groq",
+          "cerebras",
+          "gemini",
+          "cloudflare",
+          "cohere"
+        ],
+        "expected_answerer": "anthropic",
+        "actual_answerer": "anthropic",
+        "pass": true,
+        "error": null,
+        "elapsed_ms": 0.12
+      },
+      {
+        "killed": "gemini",
+        "chain": [
+          "anthropic",
+          "groq",
+          "cerebras",
+          "gemini",
+          "cloudflare",
+          "cohere"
+        ],
+        "expected_answerer": "anthropic",
+        "actual_answerer": "anthropic",
+        "pass": true,
+        "error": null,
+        "elapsed_ms": 0.12
+      },
+      {
+        "killed": "cloudflare",
+        "chain": [
+          "anthropic",
+          "groq",
+          "cerebras",
+          "gemini",
+          "cloudflare",
+          "cohere"
+        ],
+        "expected_answerer": "anthropic",
+        "actual_answerer": "anthropic",
+        "pass": true,
+        "error": null,
+        "elapsed_ms": 0.12
+      },
+      {
+        "killed": "cohere",
+        "chain": [
+          "anthropic",
+          "groq",
+          "cerebras",
+          "gemini",
+          "cloudflare",
+          "cohere"
+        ],
+        "expected_answerer": "anthropic",
+        "actual_answerer": "anthropic",
+        "pass": true,
+        "error": null,
+        "elapsed_ms": 0.13
+      }
+    ],
+    "passed": 7,
+    "total": 7
+  }
+}
