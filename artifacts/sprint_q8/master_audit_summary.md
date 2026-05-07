@@ -213,4 +213,4 @@ Playwright:      11 step script ready, run pending live env
 ---
 
 **Hazırlayan:** Worker Q8 (Opus 4.7 1M)
-**Review hedefi:** Founder Enes — `/admin/audit` veya doğrudan repo gez
+**Review hedefi:** Founder — `/admin/audit` veya doğrudan repo gez

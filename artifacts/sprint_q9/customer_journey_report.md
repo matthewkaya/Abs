@@ -83,6 +83,6 @@ client component).
 
 ---
 
-**Owner:** Founder Enes
+**Owner:** Founder
 **Pre-req:** docker compose stack up + bootstrap admin
 **Çıktı:** 11 screenshot + Playwright JSON report → audit summary
