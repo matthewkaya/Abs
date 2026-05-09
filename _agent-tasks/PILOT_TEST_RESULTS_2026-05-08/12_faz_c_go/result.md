@@ -134,9 +134,38 @@ Verdict: **regression-free**. My sprint's changes (`.env.example` content + main
 | File | Change |
 |---|---|
 | `.env.example` | Replaced monorepo-developer pointer template with the customer-facing template the brief specified (5 required + 6 providers + `ABS_VERSION` + 5 commented optionals). Existing developer pointer is now a one-line comment at the top. |
-| `_agent-tasks/PILOT_TEST_RESULTS_2026-05-08/12_faz_c_go/result.md` | This report. |
+| `_agent-tasks/PILOT_TEST_RESULTS_2026-05-08/12_faz_c_go/result.md` | This report (force-added; `_agent-tasks/` is gitignored by default). |
 
-Commit + push will land on `feat/sprint-q12-deep-quality`. Origin already has `main` matching `2e20416` (Task A), and the new commit will sit one commit ahead of `main` until the next FF.
+Commit: **`415100a`** on `feat/sprint-q12-deep-quality` (`feat(public-flip): root .env.example for customer + main FF + faz-c dry-run #2`).
+Push: ✅ `2e20416..415100a` to origin.
+
+### Aside: founder's parallel public flip landed during this sprint
+
+The push response surfaced this remote message:
+```
+GitHub found 1 vulnerability on automatiabcn/abs's default branch (1 moderate).
+```
+And `gh repo view automatiabcn/abs --json defaultBranchRef,visibility` returns
+`{"defaultBranchRef":{"name":"main"},"visibility":"PUBLIC"}`. So the
+`enzoemir1/abs` → `automatiabcn/abs` org transfer + public flip is **live**
+as of this commit. The local git remote still points at `enzoemir1/abs`;
+GitHub redirects fetch/push transparently, so no client-side change is
+required immediately. Founder may want to update `core/backend/tests/
+test_q12_ip_hardening_r3_image_only.py` (still asserts
+`ghcr.io/enzoemir1/abs-backend`) and `infra/docker-compose.customer.yml`
+(image refs) when GHCR packages are republished under the org namespace.
+
+---
+
+## Worker exit-criteria checklist
+
+- [x] `main` branch up-to-date with feat/q12 SHA, default branch = `main`.
+- [x] Hassas dosya audit clean (0 leaked secrets; templates/test fixtures only).
+- [x] `.env.example` at repo root with the brief's customer-facing template.
+- [x] Customer install dry-run #2 fully passing (boot 43s, healthz 200, CF activation jti recorded, cleanup clean). 3 P1 UX gaps documented for follow-up.
+- [x] Pytest regression: 1882 passed (brief baseline 1864 exceeded by 18; 0 sprint-induced regressions).
+- [x] Commit + push (`415100a` on feat/sprint-q12-deep-quality).
+- [x] Final report at `_agent-tasks/PILOT_TEST_RESULTS_2026-05-08/12_faz_c_go/result.md`.
 
 ---
 
