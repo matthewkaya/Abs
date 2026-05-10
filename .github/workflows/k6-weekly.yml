@@ -58,7 +58,7 @@ jobs:
               benchmarks/k6/abs_load.js
           fi
       - name: Upload k6 summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: k6-summary-${{ github.run_id }}
           path: benchmarks/results/k6_summary.json
