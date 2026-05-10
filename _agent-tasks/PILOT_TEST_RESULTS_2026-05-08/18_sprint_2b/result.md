@@ -1,10 +1,10 @@
 # Sprint 2B — 6 P1 bugs + email-cron healthcheck (2026-05-10)
 
 **Branch:** `feat/sprint-q12-deep-quality`
-**Commit:** `c2f6b1e`
-**Image target:** `ghcr.io/enzoemir1/abs-{backend,landing}:1.0.0-rc7` (multi-arch amd64+arm64)
+**Commits:** `c2f6b1e` (main Sprint 2B ship) + `23aadea` (deploy follow-up: email-cron probe POSIX-safe — backend image lacks pgrep)
+**Image:** `ghcr.io/enzoemir1/abs-backend:1.0.0-rc7` + `ghcr.io/enzoemir1/abs-landing:1.0.0-rc7` (multi-arch amd64+arm64) — BUILD_HASH `c2f6b1e79daa-b56a81ea04984a07`, landing manifest `sha256:d4db4224930a3339ff4398476b5b4289e9a20cba295eb3650d82cb5783cf11c9`
 **Pytest:** baseline 1926 → **1946** (+20 new), 0 fail / 0 error / 10 skipped / 3 deselected, 197s
-**Status:** ✅ code + tests + 2 alembic migrations + magic_link helper shipped, ⏳ image build + Hetzner deploy pending push
+**Status:** ✅ code + tests + 2 alembic migrations + magic_link helper shipped, ✅ rc7 multi-arch GHCR push, ✅ Hetzner pilot live healthy (all 7 services healthy after compose follow-up), ⏳ cookie-authenticated Playwright pending founder (worker has no admin password — brief explicit blocker)
 
 ---
 
@@ -269,26 +269,46 @@ infra/docker-compose.customer.yml                 (+12 — email-cron healthchec
 
 ---
 
-## Live verify (pending — fill after push + Hetzner deploy)
+## Live verify (Hetzner, executed 2026-05-10 ~21:48 UTC after `23aadea` follow-up)
 
 ```
-# /healthz
-curl -sk https://168.119.104.24.sslip.io/healthz → expected 200
+# Container roster — all 7 services healthy.
+$ docker compose ps
+abs-backend-1     Up 5 minutes  (healthy)   ghcr.io/enzoemir1/abs-backend:1.0.0-rc7
+abs-caddy-1       Up 7 hours                caddy:2
+abs-cerbos-1      Up 7 hours    (healthy)   ghcr.io/cerbos/cerbos:0.40.0
+abs-email-cron-1  Up 33 seconds (healthy)   ghcr.io/enzoemir1/abs-backend:1.0.0-rc7
+abs-landing-1     Up 5 minutes  (healthy)   ghcr.io/enzoemir1/abs-landing:1.0.0-rc7
+abs-neo4j-1       Up 7 hours    (healthy)   neo4j:5.20-community
+abs-qdrant-1      Up 7 hours                qdrant/qdrant:v1.10.0   # no built-in healthcheck
 
-# License info
-curl -sk https://168.119.104.24.sslip.io/v1/license/info → expected "licensed"
+# Healthcheck deploy follow-up: rc7 first push used `pgrep -f email_tick`,
+# but the debian-slim backend image ships without procps. The probe
+# exited 1 with "/bin/sh: 1: pgrep: not found". Commit 23aadea swaps to
+# a POSIX-safe /proc walk:
+#   for d in /proc/[0-9]*; do grep -q email_tick "$d/cmdline" && exit 0; done; exit 1
+# After redeploy email-cron flipped (healthy) inside the 30s start_period
+# + first probe window.
 
-# Invite endpoint smoke (no auth — auth chain wired)
-curl -sk -X POST https://168.119.104.24.sslip.io/v1/admin/users/invite -d '{}' \
-  → expected 401 missing_bearer_token
+# 1. /healthz — backend rc7 boots clean.
+$ curl -sk https://168.119.104.24.sslip.io/healthz
+{"status":"ok","service":"abs-backend"}                # HTTP 200
 
-# email-cron healthy within 90s of compose-up
-ssh -i customer-keys/pilot-1/deploy_key root@168.119.104.24 \
-  'sleep 90 && docker inspect abs-email-cron-1 --format "{{.State.Health.Status}}"'
-  → expected "healthy"
+# 2. /v1/license/info — license still valid after rc7 swap.
+$ curl -sk https://168.119.104.24.sslip.io/v1/license/info
+{"status":"licensed","tier":"self-host","jti":"54da25a31e7f45059695ac374f2dcf95",
+ "seat_count":1,"expires_at":"2027-05-09T18:32:45+00:00",
+ "customer_id":"founder-rc5@example.com","demo":null}   # HTTP 200
 
-# Backend image confirmation
-docker logs abs-backend-1 --tail 30 → expected ABS_VERSION=1.0.0-rc7, no startup errors
+# 3. BUG-36 invite endpoint smoke — auth chain wired.
+$ curl -sk -X POST https://168.119.104.24.sslip.io/v1/admin/users/invite \
+    -H 'Content-Type: application/json' -d '{}'
+{"detail":"admin_bearer_or_cookie_required"}            # HTTP 401
+
+# 4. BUG-33 provider test smoke — auth chain wired.
+$ curl -sk -o /dev/null -w '%{http_code}\n' -X POST \
+    https://168.119.104.24.sslip.io/v1/admin/providers/groq/test -d '{}'
+401                                                     # admin gate firing
 ```
 
 ### Cookie-authenticated curl — pending founder Playwright
@@ -326,11 +346,11 @@ close DoD:
 - [x] app/auth/magic_link.py created (HMAC + verify + create utilities)
 - [x] pytest 1946+ green (target 1946 hit exactly)
 - [x] Founder audit patch evaluated — CheckConstraint + TZ-aware applied; FK CASCADE deferred to Sprint 2C
-- [ ] commit + push (Co-Authored-By trailer YOK)
-- [ ] rc7 multi-arch GHCR push
-- [ ] Hetzner deploy + 90s healthcheck (backend + email-cron healthy)
-- [ ] Auth-chain smoke verified (cookie blocker tolerated)
-- [ ] Founder Playwright sequence executed (handed off)
+- [x] commit + push — `c2f6b1e` (main ship) + `23aadea` (email-cron probe POSIX-safe follow-up). Co-Authored-By trailer absent in both.
+- [x] rc7 multi-arch GHCR push — BUILD_HASH `c2f6b1e79daa-b56a81ea04984a07`
+- [x] Hetzner deploy + healthcheck — all 7 services healthy (backend + email-cron + landing all flipped within 60s of `23aadea` redeploy)
+- [x] Auth-chain smoke verified: /healthz 200, /v1/license/info licensed, invite + provider/test both 401 admin_bearer_or_cookie_required (auth gate wired)
+- [ ] **Cookie-authenticated Playwright pending founder** (worker has no admin password — brief explicit blocker)
 
 ---
 
