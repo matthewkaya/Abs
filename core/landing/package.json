@@ -48,7 +48,7 @@
     "remark-gfm": "^4.0.1",
     "shepherd.js": "^15.2.2",
     "sonner": "^1.7.1",
-    "stripe": "^17.0.0",
+    "stripe": "^22.1.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.184.0",
