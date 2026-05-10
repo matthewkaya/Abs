@@ -1,7 +1,7 @@
 # Sprint 2B — 6 P1 bugs + email-cron healthcheck (2026-05-10)
 
 **Branch:** `feat/sprint-q12-deep-quality`
-**Commit:** _(filled at push)_
+**Commit:** `c2f6b1e`
 **Image target:** `ghcr.io/enzoemir1/abs-{backend,landing}:1.0.0-rc7` (multi-arch amd64+arm64)
 **Pytest:** baseline 1926 → **1946** (+20 new), 0 fail / 0 error / 10 skipped / 3 deselected, 197s
 **Status:** ✅ code + tests + 2 alembic migrations + magic_link helper shipped, ⏳ image build + Hetzner deploy pending push
