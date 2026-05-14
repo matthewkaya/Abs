@@ -1,0 +1,38 @@
+# Sprint 2M FAZ E — First MCP + RAG (provider-free)
+
+## MCP tool count (FastMCP registry)
+  Backend Python: from app.mcp.server import mcp_server, register_all_tools; register_all_tools()
+  → 122 tools (brief 123 hedef, 1 eksik — bug 2M-011 P3 minor inconsistency)
+  First 15: ask_haiku, ask_sonnet, ask_opus, ask_groq_fast, ask_scout,
+            ask_cerebras, ask_gemini, ask_gemini_pro, ask_cf, ask_cf_gptoss,
+            ask_kimi, ask_phi4, daily_cost, learnings_recent, learnings_log
+  Last 5: health_status, breaker_status, vault_status, workflow_status, workflow_resume
+
+## MCP HTTP transport (Streamable HTTP)
+  /mcp/ JSON-RPC tools/list → 200 ama Content-Length: 0 (SSE response, curl uyumsuz)
+  Host header validation aktif: external host → 421 Invalid Host header
+  Workaround: -H "Host: 127.0.0.1" geçti. Production MCP clients SDK kullanır.
+
+## RAG ingest (English)
+  POST /v1/rag/ingest JSON body (multipart YANLIŞ — brief stale)
+  Response: {"doc_id":"84bb1ea51ac50cfb","chunks":1,"tokens_estimated":45,"elapsed_ms":215}
+
+## RAG query (English)
+  POST /v1/rag/query {"query":"How many providers does ABS use?","top_k":3}
+  → 1 hit, score=0.168, elapsed=18ms
+  Text exact match: "ABS is an AI orchestrator. It uses 6 providers..."
+
+## RAG ingest + query (Türkçe — Lesson 11 byte-exact)
+  Ingest text: "ABS, İstanbul merkezli Automatia BCN... Şubat ayında... Altı sağlayıcı..."
+  → chunks=1, tokens=72, elapsed=8ms
+  Query: "İstanbul Şubat şirket" → 2 hit
+  Hit 0 (TR doc): score=-0.138 — 8/8 TR karakter present (İ,Ş,ş,ğ,ı,ö,ü,ç) ✅ Lesson 11 PASS
+  Hit 1 (EN doc): score=-0.157 — 0/8 TR karakter (beklendi, EN doc)
+
+## NOT — Mock embedding
+  ABS_EMBEDDING_BACKEND=mock (sha256-derived, deterministic dummy vectors)
+  Skor düşük (-0.16) ama text retrieval doğru — semantic similarity yerine hash benzerliği
+  Production için ABS_EMBEDDING_BACKEND=sentence_transformers + BGE-M3 (2.2GB lazy DL)
+
+## Cascade chat — SKIP (provider key yok)
+  Brief E3 /v1/chat ping → STOP CRITERIA #1, FAZ D + bu test ayrı sprint
