@@ -41,17 +41,20 @@ açıklama + UX impact + öneri fix tek pakette.
 | 2M-021 | P2 | H4 | UAT-034 cap test data sparse | Audit cap=100 enforce ediliyor ama veri sadece 6 entry → 9999 limit ile de 6 döndü. Cap'i gerçek doğrulamak için 200+ entry seed gerekir. Sim ortamı seed eksik. | `?limit=9999` → 6 entry (cap=100 hedef ama veri yetersiz, fonksiyonel doğrulamadı) | h-admin-panel-kvkk-audit.txt | E2E test'e 200+ audit entry seed ekle, cap=100 kesinleştir. (Test infrastructure improvement) |
 | 2M-022 | P2 | H2 | KVKK confirm_token plaintext (env dependent) | delete-request response body `confirm_token` plaintext döner — ama `settings.env != "prod"` koşulluda intended (test/dev). Customer compose default ABS_ENV unset → dev mode → plaintext sızar. Quickstart doc'a ABS_ENV=prod enforce eksik. | `curl POST /v1/me/account/delete-request` → 200 body `confirm_token` field | h-admin-panel-kvkk-audit.txt | (a) Customer compose `.env.example`'a `ABS_ENV=prod` default + comment. (b) Boot guard: `env != "prod"` ise `WARN: dev mode, do not use for real customer data`. |
 | 2M-023 | **P1** | H2 | Container image `1.0.0` stale (deletion-status eksik) | `ghcr.io/enzoemir1/abs-backend:1.0.0` me_account.py 240 satır, lokal repo 355 satır. Sprint 2I UAT-038 `/v1/me/account/deletion-status` endpoint container'a deploy edilmemiş. Müşteri default `ABS_VERSION=1.0.0` kullanırsa countdown banner + scheduled_delete_at API çalışmaz. | `docker exec backend grep -c deletion-status /app/app/api/me_account.py` → 0 (lokal repo → 1+) | h-admin-panel-kvkk-audit.txt | Build + push `ghcr.io/enzoemir1/abs-backend:1.0.0-rc2` (veya 1.0.1) + `.env.example` `ABS_VERSION=1.0.0-rc2` default. CI workflow image-publish job retag. |
+| 2M-024 | **P1** | I4 | `/auth/login` rate limit yok (UAT-041 regression) | 10 sequential wrong-password attempt → 10x 401, 0x 429. Brute force korumasız. UAT-041 hedef 5/min cap kaybolmuş. | 10x POST `/auth/login` `{"email":"x","password":"wrong${i}"}` → tümü 401 | i-edge-cases.txt | `slowapi` veya `fastapi-limiter` middleware `/auth/login` endpoint'ine ekle, 5 req/min per IP. Redis storage opsiyonel; in-memory yeterli small deploy. |
+| 2M-025 | **P0** | I2 | UAT-009 fail-closed BROKEN (backend down → 200 panel) | `docker compose stop backend` sonrası `GET /admin/dashboard` → 200 + 34KB Next.js HTML. Landing SSR auth check yapmıyor, backend health'i probe etmiyor. Müşteri "panel çalışıyor sanır", XHR'lerle hata bulmaya çalışır. | `docker compose stop backend; curl /admin/dashboard` → 200 (beklenen 503/redirect) | i-edge-cases.txt | Landing `app/admin/layout.tsx` (veya middleware.ts) → `fetch backend /healthz` SSR'da; 5xx ise `redirect('/login')` ya da 503 page. CSP `connect-src` revize. |
+| 2M-026 | **P0** | I-NEW | Customer compose Postgres yok — Sprint 2K RLS DEFENSE-IN-DEPTH AKTİF DEĞİL | `infra/docker-compose.customer.yml` Postgres service tanımlamıyor. Backend DATABASE_URL unset → SQLite fallback (`sqlite:////app/data/abs.db`). Sprint 2K Postgres RLS migration sadece dev/CI'da test edildi. Müşteri "Sprint 2K RLS güvenim var" düşünür ama gerçekte yok. | `docker exec backend python -c "from app.db.session import get_engine; print(get_engine().url)"` → sqlite | i-edge-cases.txt | Customer compose'a Postgres 16 service ekle (abs-postgres-data named volume), Sprint 2K migration default. SQLite legacy fallback `ABS_DB_BACKEND=sqlite` opt-in. Quickstart doc Postgres recipe. |
 
 ---
 
-## P0/P1/P2/P3 sayım (FAZ H kapanışı)
+## P0/P1/P2/P3 sayım (FAZ I kapanışı)
 
-- **P0 (blocker):** 2 (2M-003 setup HTML Türkçe, 2M-017 cascade fallback Türkçe)
-- **P1 (critical):** 5 (2M-009 panel route, 2M-014 daily_cost, 2M-018 cascade 200, 2M-020 Caddy /me/*, 2M-023 image stale)
+- **P0 (blocker):** 4 (2M-003 setup HTML, 2M-017 cascade fallback, 2M-025 fail-closed, 2M-026 Postgres yok)
+- **P1 (critical):** 6 (2M-009, 014, 018, 020, 023, 024)
 - **P2 (polish):** 10 (2M-001, 002, 004, 006, 008, 010, 013, 015, 021, 022)
 - **P3 (note):** 6 (2M-005, 007, 011, 012, 016, 019)
 
-**Toplam:** 23 bulgu (FAZ A-C-E-F-G-H)
+**Toplam:** 26 bulgu (FAZ A-C-E-F-G-H-I)
 
 ---
 
