@@ -381,3 +381,98 @@ Acceptance target was +14; achieved +17 + 8 additional postgres_only cases for t
 
 **Damga:** *Defence-in-depth multi-tenant RLS — 3/3 audit tables enforce.*
 
+---
+
+## XI. Sprint 2M Customer E2E Audit footer (2026-05-14) — 🟡 RC
+
+Audit-only sprint: müşteri perspektifi ile end-to-end test, lokal docker compose
+ortamında (M4 `/tmp/abs-customer-sim/`, audit-only — Lesson 14 single-actor enforce).
+
+### Delivered
+
+- **13 FAZ:** A, B, C, E, G, H, I, K, L, M tam koşturuldu — 7/13.
+  D + F-generation + J SKIP (provider key 6/6 erişilemez, STOP CRITERIA #1 partial).
+- **11 commit** (Sprint 2K HEAD `c68a5a6` üzerinden):
+  `chore(2m-pre)` + `chore(2m-b)` + 7×`test(2m-{c,e,f,g,h,i,k})` + 2×`docs(2m-{l,m})`.
+- **11 evidence text dump** `_agent-tasks/SPRINT_2M_EVIDENCE/` (~24 KB toplam).
+- **Bug log** `_agent-tasks/SPRINT_2M_BUG_LOG.md` — 26 bulgu: 4 P0 + 6 P1 + 10 P2 + 6 P3.
+- **Comprehensive report** `_agent-tasks/SPRINT_2M_CUSTOMER_E2E_AUDIT_REPORT.md` (~14 KB).
+
+### Test ortamı sonuçları
+
+- **Sprint 2K baseline:** `pytest 2143/0/24/58warn` GREEN (regression yok).
+- **Compose up:** 7/7 service running (5 healthy + 2 healthcheck'siz).
+- **Setup wizard:** 6/6 step in 53 saniye (hedef <2dk ✅).
+- **First-boot to wizard complete:** 3-8 dakika (hedef ≤30 dk → **EXCELLENT %10-25**).
+- **MCP tools:** 122 registered (brief 123 hedef, 1 eksik P3).
+- **Provider-free tool test:** 20/22 GREEN (90.9%).
+- **RAG round-trip Türkçe:** 8/8 byte-exact PASS (storage layer ✅).
+- **/admin/\*:** 13/15 sayfa 200 (2× 308 redirect meetings/transcription).
+- **KVKK 2-step:** delete-request 200, data-export encrypted blob 2060 bytes.
+- **Audit pagination cap=100:** GREEN.
+
+### Kritik bulgular (Sprint 2N hot-fix scope)
+
+**4 P0:**
+1. **2M-003** Setup wizard HTML `"Ileri"` 5x (Lesson 11 — Latin I yerine TR İ).
+2. **2M-017** Cascade 6-down fallback `"Tum saglayicilar gecici hata verdi"` 8 karakter
+   ASCII'ye düşmüş (Ü/ü/ğ/ç/ı/ş — Lesson 11 byte-exact FAIL).
+3. **2M-025** UAT-009 fail-closed BROKEN: backend down → `/admin/dashboard` 200 HTML
+   render (landing SSR auth/health check yok).
+4. **2M-026** Customer compose Postgres servisi YOK → SQLite default. Sprint 2K
+   defense-in-depth katmanı customer ortamında aktif değil.
+
+**6 P1:** `/panel/*` route mismatch (#009), `daily_cost` IndexError (#014), cascade
+HTTP 200 vs 503 (#018), Caddyfile `/me/*` gap (#020), image 1.0.0 stale UAT-038
+deletion-status eksik (#023), `/auth/login` rate limit YOK UAT-041 (#024).
+
+**10 P2 + 6 P3:** brief stale endpoint'ler, polish, MCP host validation Q12, latency
+outlier, env=prod enforce eksik. Detay: `SPRINT_2M_BUG_LOG.md`.
+
+### Customer UX scorecard
+
+| Kategori | Puan |
+|----------|------|
+| Setup wizard | 7/10 |
+| Hata mesajları TR | 4/10 |
+| Doc erişimi | 5/10 |
+| Performance | 9/10 |
+| Türkçe deneyimi | 3/10 |
+| KVKK/güven | 6/10 |
+
+**Ortalama (6 kategori):** **5.7/10** — "fonksiyonel ama kalite eksikleri, müşteri
+1-2 damga sonrası pes edebilir".
+
+### Cert footer verdict — 🟡 RC
+
+**🟢 GREEN damga eligible DEĞİL** çünkü:
+- 4 P0 bug açık (2 Lesson 11 UI critical paths, 1 fail-closed regression, 1 Postgres RLS customer'da yok).
+- Provider live test yapılamadı (FAZ D + F-generation + J skip).
+- UI critical paths Türkçe pass rate ~0% (setup HTML + cascade fallback).
+- Sprint 2K defense-in-depth customer compose'da kaybediliyor.
+
+**Pilot Batch 2 GO/NO-GO:** **NO-GO**.
+
+### Sprint 2N hot-fix (önerilen, 1-2 hafta)
+
+5 founder rec uygula → 4 P0 + 5 P1 fix → cert 🟡 RC → 🟢 GREEN eligible:
+1. Türkçe Lesson 11 blanket-audit + CI gate.
+2. Postgres RLS customer compose'a entegre + Sprint 2K migration default.
+3. UAT-009 fail-closed landing SSR `/healthz` probe restore.
+4. Image `1.0.0` → `1.0.1` retag (UAT-038 deletion-status decorator container'a deploy).
+5. `/auth/login` rate limit `slowapi` middleware (UAT-041 restore).
+
+### Founder action remaining
+
+- 6 provider API key paste → Sprint 2M-Provider-Live ayrı sprint (FAZ D + F-gen + J tamamlama).
+- Pilot 1 (mevcut 3 müşteri) → Sprint 2N rolling patch bildirimi.
+- Sprint 2N kapanışında: cert 🟢 GREEN re-stamp + Pilot Batch 2 GO kararı.
+
+**Lessons enforced:** 11 (RAG storage PASS, UI critical paths Sprint 2N scope), 12
+(Co-Authored-By trailer 11/11 commit YOK), 13 (secret stdin pipe + redact log YOK
+plaintext leak), 14 (Hetzner LIVE deploy YOK, audit-only), 16 (marka-neutral, sibling
+project ismi YOK).
+
+**Damga:** *Customer E2E audit — 26 bulgu (4 P0 + 6 P1) tespit, pilot batch 2 NO-GO,
+Sprint 2N hot-fix scope çıkarıldı.* 🟡 RC.
+
