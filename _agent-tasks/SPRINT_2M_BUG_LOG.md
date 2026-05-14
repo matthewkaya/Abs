@@ -28,17 +28,20 @@ açıklama + UX impact + öneri fix tek pakette.
 | 2M-008 | P2 | C4 | setup step ping disabled | Step 4 anthropic & Step 6 test `"reason":"live ping disabled in setup"`. Format-only validation. Müşteri yanlış key paste → setup tamamlanır → ilk chat fail. | Step 4 payload `{"anthropic_api_key":"sk-ant-placeholder"}` → 200 OK. | c-setup-wizard-6step.txt | Setup Step 6 "test" gerçek 1-prompt ping yapsın (1 token, $0.0001), başarısız ise setup tamamlanmasın. Founder cost-conscious yine de minimum smoke ekle. |
 | 2M-009 | **P1** | C5 | panel route mismatch | Brief `/panel/quota`, `/panel/tools`, `/panel/chat`, `/panel/meetings` rotalarını talep ediyor — gerçek hepsi 404. Canonical rota `/admin/*`. Polish memory v1.7 "/admin/* → /panel/* 308 redirect" ile çelişiyor. | `curl -kL /panel/chat` → 404; `/admin/chat` → 200. | c-admin-login-panel-route.txt | İki seçenek: (a) `/panel/* → /admin/*` redirect ekle (polish memory'yi onayla); (b) Brief'i güncelle `/admin/*`. Polish memory v1.7 yanıltıcı — invalidate veya impl ekle. |
 | 2M-010 | P2 | C5 | /panel/ HTTPS downgrade redirect | `/panel/` 307 location: `http://abs.sim.local/panel` (HTTPS yerine HTTP). Cookie `SameSite=strict` ile bu cross-protocol redirect cookie drop edebilir. | `curl -kI https://host/panel/` → 307 `location: http://host/panel`. | c-admin-login-panel-route.txt | Redirect protokolü origin'den miras alsın. `https://` zorla. Backend redirect handler patch. |
+| 2M-011 | P3 | E1 | MCP tool count 122 vs brief 123 | FastMCP registry `len = 122`, brief 123 hedef — 1 tool kaybı veya brief stale. STOP CRITERIA #8 trigger eşiği <80, sınırın çok üstünde — minor inconsistency. | `register_all_tools(); len(mcp_server._tool_manager._tools)` → 122 | e-mcp-rag-tr.txt | Brief'i 122'ye güncelle veya registration audit (legacy tool removed muhtemelen). |
+| 2M-012 | P3 | E2 | RAG ingest brief stale (multipart) | Brief E2 `curl -F file=@... -F project_slug=...` multipart bekler. Gerçek endpoint `IngestTextRequest` JSON body alır — multipart 422. | `curl -F file=@x.md https://host/v1/rag/ingest` → 422 validation error. | e-mcp-rag-tr.txt | Brief'i JSON body örneğine güncelle. Veya `/ingest/multipart` ayrı endpoint ekle. |
+| 2M-013 | P2 | E3 | MCP Streamable HTTP host validation | `/mcp/` JSON-RPC dış host header (`abs.sim.local`) ile 421 "Invalid Host header". Curl ile test imkansız. SDK clients ile OK ama smoke testing zor. | `curl https://host/mcp/ -d '{"jsonrpc":...}'` → 421 | e-mcp-rag-tr.txt | `ABS_MCP_ALLOWED_HOSTS` env'i quickstart doc'a yaz. Veya allowed_hosts'a ABS_PUBLIC_HOSTNAME otomatik eklensin. |
 
 ---
 
-## P0/P1/P2/P3 sayım (FAZ C kapanışı)
+## P0/P1/P2/P3 sayım (FAZ E kapanışı)
 
 - **P0 (blocker):** 1 (2M-003 Türkçe Lesson 11 setup HTML)
 - **P1 (critical):** 1 (2M-009 panel route mismatch — brief vs gerçek)
-- **P2 (polish):** 6 (2M-001 API contract, 2M-002 TLS toggle, 2M-004 grammar, 2M-006 lang state, 2M-008 ping disabled, 2M-010 HTTPS downgrade)
-- **P3 (note):** 2 (2M-005 first-boot UX, 2M-007 brief stale payload)
+- **P2 (polish):** 7 (2M-001, 002, 004, 006, 008, 010, 013)
+- **P3 (note):** 4 (2M-005, 007, 011 tool count, 012 brief stale)
 
-**Toplam:** 10 bulgu (FAZ A-C)
+**Toplam:** 13 bulgu (FAZ A-C-E)
 
 ---
 
