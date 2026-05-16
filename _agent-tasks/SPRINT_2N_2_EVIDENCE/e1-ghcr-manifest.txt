@@ -1,0 +1,41 @@
+FAZ E — GHCR manifest verification (Sprint 2N.2 / v1.0.3)
+===========================================================
+
+Workflow runs:
+  Release         id=25968244147  conclusion=success
+    - Create GitHub Release             OK
+    - publish-images backend            OK
+    - publish-images landing            OK
+    - Cosign keyless sign               OK
+  SBOM Generation id=25968244153  conclusion=success
+  CI Postgres     id=25968243828  conclusion=success
+  CodeQL          id=25968243837  conclusion=success
+  docs            id=25968243819  conclusion=failure (separate hotfix commit
+                                  3e41dc1 closes; see "Resolve mike version
+                                  label" step that derives version from git ref)
+
+Manifests live on GHCR (both 1.0.3 and latest, OCI multi-arch index):
+
+  ghcr.io/automatiabcn/abs-backend:1.0.3
+    amd64  sha256:459bb68e9ad8b68e93d127cc75f49bb0b9c0124c6175ce1d7590dc1149f6db83
+    attestation
+           sha256:74ae69c9796182cf6b6449e0de86b61ce6f8afa7a6454081b611172c06cf1f89
+
+  ghcr.io/automatiabcn/abs-landing:1.0.3
+    amd64  sha256:8c51aca0d591cf6fe47011ce412d4cf1e9325aa3cfcf72fbe8b3e3ba6f2436e2
+    attestation
+           sha256:49a75a1821dfc13bde19d64a255588169795daf811b43de34d77d09ac4e87dd0
+
+  ghcr.io/automatiabcn/abs-backend:latest  → same digest as :1.0.3
+  ghcr.io/automatiabcn/abs-landing:latest  → same digest as :1.0.3
+
+Pre-2N.2 state (v1.0.2):
+  ghcr.io/enzoemir1/abs-backend:1.0.2     HTTP 404 (push never succeeded)
+  ghcr.io/enzoemir1/abs-landing:1.0.2     HTTP 404 (permission_denied)
+
+v1.0.3 closes the smebes upgrade blocker. Operators pinned to the
+pre-2N.2 enzoemir1 namespace can keep that path by setting
+ABS_GHCR_NAMESPACE=enzoemir1 in their .env (compose template default
+is automatiabcn). Founder may dual-publish to enzoemir1 manually via
+`GHCR_USER=enzoemir1 ./scripts/release.sh 1.0.3` if backward compat
+for an existing customer pin is required.
