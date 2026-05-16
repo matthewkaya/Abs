@@ -1,0 +1,33 @@
+FAZ C — mike unconditional pre-delete (Sprint 2N.2)
+====================================================
+
+ROOT CAUSE (from v1.0.2 docs run 25910947977):
+  error: duplicated version and alias
+  ##[error]Process completed with exit code 1.
+
+Sprint 2N.1 FAZ C tried:
+  if mike list 2>/dev/null | grep -Eq "(^|[, ])${MIKE_VERSION}([ ,]|$)"; then
+    mike delete --push "${MIKE_VERSION}" || true
+  fi
+
+But `mike list` output formats aliases inside square brackets:
+
+  1.0.1 [latest]
+  1.0.0
+
+The regex `(^|[, ])latest([ ,]|$)` requires a space/comma/start-of-line
+boundary before "latest", so it never matched the bracketed alias.
+The conditional was always false, the delete was skipped, and mike
+deploy hit `duplicated version and alias` on the second run.
+
+FIX:
+  mike delete --push "${MIKE_VERSION}" 2>/dev/null || true
+  mike deploy --push --update-aliases "${MIKE_VERSION}" latest
+
+`mike delete` is idempotent in practice:
+- First-run install: nothing in gh-pages → delete exits non-zero,
+  stderr silenced, `|| true` swallows. mike deploy then creates fresh.
+- Existing install: prior version+alias removed cleanly. mike deploy
+  creates fresh, no duplicate-alias error.
+
+YAML safe_load passes.
