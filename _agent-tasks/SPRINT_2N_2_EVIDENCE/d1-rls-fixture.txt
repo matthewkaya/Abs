@@ -1,0 +1,60 @@
+FAZ D — CI Postgres RLS test fixture (Sprint 2N.2)
+====================================================
+
+ROOT CAUSE (v1.0.2 ci-postgres run 25910947983, 5 fail):
+  test_abs_app_blocked_without_guc      assert [(1,)] == []
+  test_rls_blocks_cross_tenant_select   assert [(jti,)] == []
+  test_rls_no_guc_denies_all_rows       assert [(1,)] == []
+  test_rls_wrong_tenant_returns_zero    assert [(1,)] == []
+  test_rls_downgrade_restores_global_visibility
+    DROP ROLE abs_admin → DependentObjectsStillExist
+
+Three compounding bugs:
+
+1. postgres:15 creates POSTGRES_USER (abs_app) with SUPERUSER + BYPASSRLS.
+   FORCE RLS makes the table OWNER subject, but only NOBYPASSRLS roles
+   are ever filtered. abs_app saw every row regardless of GUC.
+
+2. SQLAlchemy QueuePool reused connections across the test's
+   `with engine.connect()` blocks, so the prior block's
+   `SET abs.tenant_id = 'tenant_a'` leaked into the next block that
+   was supposed to run "with no GUC".
+
+3. Migration 0015b's downgrade intentionally runs `DROP ROLE IF EXISTS
+   abs_admin` without revoking grants first (prod-safety: don't strip
+   a live admin connection silently). CI explicitly granted abs_admin
+   SELECT/CONNECT/USAGE before tests, so the bare DROP failed during
+   the downgrade-roundtrip test.
+
+FIX:
+
+A. .github/workflows/ci-postgres.yml
+   - Create a SECOND login role `abs_app_rls` with
+     NOSUPERUSER NOBYPASSRLS, granted SELECT/INSERT/UPDATE/DELETE on
+     the 3 audit tables.
+   - Pass it into the test step as ABS_TEST_POSTGRES_RLS_URL.
+   - Keep abs_app as SUPERUSER (needed for alembic
+     `CREATE ROLE abs_admin WITH BYPASSRLS` in 0015b).
+
+B. core/backend/tests/integration/test_rls_audit_tables.py
+   - Read ABS_TEST_POSTGRES_RLS_URL, fall back to POSTGRES_URL.
+   - _engine() — NullPool + new RLS_URL so each `with engine.connect()`
+     gets a fresh session (no GUC leak) under the regular role.
+   - _admin_engine() — SUPERUSER POSTGRES_URL for grants + REVOKE.
+   - test_rls_downgrade_restores_global_visibility:
+     * Pre-downgrade explicit REVOKE through _admin_engine() so 0015b
+       DROP ROLE succeeds.
+     * Finally re-applies LOGIN + password + grants for abs_admin so
+       the next module's BYPASSRLS suite can authenticate.
+
+C. core/backend/tests/integration/test_admin_bypass_rls.py
+   - Same RLS_URL fallback.
+   - _engine() — NullPool too.
+   - Both tests' app_engine = _engine(RLS_URL) (insert under RLS).
+
+LOCAL VERIFY (Postgres 15 docker, two-role setup):
+  Order A → B: 7/7 passed in 2.78s
+  Order B → A: 7/7 passed in 2.98s (test isolation OK)
+
+REGRESSION (SQLite path):
+  Full pytest tests/ — 2171 passed, 24 skipped (baseline preserved)
