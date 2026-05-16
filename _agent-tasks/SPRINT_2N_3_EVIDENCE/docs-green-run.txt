@@ -1,0 +1,13 @@
+{
+    "conclusion": "success",
+    "databaseId": 25968714499,
+    "displayTitle": "merge: Sprint 2N.3 docs hot-patch \u2014 mike alias split (closes 2N.2 doc\u2026",
+    "headBranch": "main",
+    "headSha": "f433dcbbe8ee699e63f023e90f860627be335a14",
+    "name": "docs",
+    "status": "completed",
+    "url": "https://github.com/automatiabcn/abs/actions/runs/25968714499",
+    "workflowName": "docs"
+}
+---
+{"completedAt":"2026-05-16T17:46:14Z","conclusion":"success","name":"build","startedAt":"2026-05-16T17:45:24Z","status":"completed"}
