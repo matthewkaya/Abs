@@ -1,9 +1,0 @@
-path=artifacts/sprint_q1_quality/quality/B1_sample.wav
-size_bytes=334892
-duration_s=7.59
-sample_rate=22050
-rms=0.134
-peak=1.000
-zc_per_s=2760
-
-B1_PASS

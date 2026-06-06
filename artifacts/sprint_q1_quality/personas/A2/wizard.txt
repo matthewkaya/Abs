@@ -1,7 +1,0 @@
-step1=200
-step2=200
-step3=200
-step4=200
-step5=200
-step6=200
-login=200

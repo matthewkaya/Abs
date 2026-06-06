@@ -1,3 +1,0 @@
-/v1/rag/ingest
-/v1/rag/query
-rag_query=401

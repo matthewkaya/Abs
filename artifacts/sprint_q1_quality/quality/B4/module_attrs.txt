@@ -1,7 +1,0 @@
-module_attrs: ['EvalSample', 'EvalScores', 'Path', 'RagasEvaluator', 'Sequence', 'annotations', 'close_evaluator', 'dataclass', 'datetime', 'get_evaluator', 'json', 'load_baseline', 'logger', 'logging', 're', 'regression_check', 'save_baseline', 'settings', 'timezone']
-RagasEvaluator methods: ['close', 'evaluate']
-get_evaluator sig: () -> 'RagasEvaluator'
-load_baseline sig: (path: 'str | Path') -> 'EvalScores'
-regression_check sig: (current: 'EvalScores', baseline: 'EvalScores', *, max_drop: 'float' = 0.05) -> 'list[str]'
-EvalSample fields: ['answer', 'contexts', 'ground_truth', 'question']
-evaluate sig: (self, samples: 'list[EvalSample]') -> 'EvalScores'

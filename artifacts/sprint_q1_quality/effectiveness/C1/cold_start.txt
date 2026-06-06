@@ -1,2 +1,0 @@
-elapsed=16s healthz_attempts=4
-C1_PASS
