@@ -1,7 +1,0 @@
-{
-  "n_samples": 50,
-  "faithfulness": 0.4245,
-  "answer_relevance": 0.358,
-  "context_precision": 0.04,
-  "context_recall": 0.5569
-}

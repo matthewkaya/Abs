@@ -1,1 +1,0 @@
-core/landing/components/PricingPage.tsx:3:// any lingering imports keep compiling, but no $/€/lifetime copy is

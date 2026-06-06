@@ -1,8 +1,0 @@
-# Sprint 2M FAZ B3 — docker compose ps (7 service)
-backend        running    healthy   
-caddy          running              
-cerbos         running    healthy   
-email-cron     running    healthy   
-landing        running    healthy   
-neo4j          running    healthy   
-qdrant         running              

@@ -1,8 +1,0 @@
-=== Phase 1 — Sprint 19 close smoke ===
-login=200
---- /v1/workflows/synthesize ---
-synth=200
-  source=template nodes=4 warnings=2
---- /v1/workflows/execute (dry_run) ---
-execute_dry=200
---- proxies ---

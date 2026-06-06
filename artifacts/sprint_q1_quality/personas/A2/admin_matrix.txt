@@ -1,8 +1,0 @@
-admin/dashboard=200
-admin/audit/recent=200
-admin/errors/recent=200
-admin/analytics/licenses=200
-admin/analytics/churn=200
-admin/me=200
-admin/status/full=200
-admin/vault/audit=200

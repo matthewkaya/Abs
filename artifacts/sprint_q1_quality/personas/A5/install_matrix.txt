@@ -1,6 +1,0 @@
-install/slack-receiver=201
-install/gmail-archiver=201
-install/linear-bridge=201
-install/notion-sync=201
-install/postgres-mirror=201
-idempotent=201
